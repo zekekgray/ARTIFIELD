@@ -573,3 +573,5 @@ schema.
 - **Rule 18 (Length & Truncation Safety)** — proactive na fallback: kung malaki ang file at may risk na ma-cut-off ang output bago matapos, unahin munang kumpletuhin ang JSON structure kaysa sa detalyadong text — paikliin muna ang mahahabang strings bago ito.
 
 Pareho itong nasa checklist na rin bilang huling pag-verify bago mag-output.
+
+
