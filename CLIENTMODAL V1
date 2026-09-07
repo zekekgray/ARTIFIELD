@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:18px 20px;color:#1a1a1a;font-size:13px;}
+    h3{margin:0 0 4px;font-size:16px;}
+    .sub{color:#666;font-size:12px;margin-bottom:16px;}
+    .field{margin-bottom:12px;}
+    .field label{display:block;font-size:11.5px;color:#555;margin-bottom:4px;font-weight:600;}
+    .field input, .field select{
+      width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;
+    }
+    .field input:focus, .field select:focus{outline:none;border-color:#4285F4;box-shadow:0 0 0 2px rgba(66,133,244,.15);}
+    .row2{display:flex;gap:10px;}
+    .row2 .field{flex:1;}
+    .required{color:#d33;}
+    #submitBtn{
+      width:100%;padding:10px;background:#4285F4;color:#fff;border:none;border-radius:6px;
+      font-size:13.5px;font-weight:600;cursor:pointer;margin-top:6px;
+    }
+    #submitBtn:hover{background:#3367D6;}
+    #submitBtn:disabled{background:#9db8e8;cursor:not-allowed;}
+    #resultBox{
+      margin-top:16px;padding:12px 14px;border-radius:8px;font-size:12.5px;line-height:1.7;display:none;
+    }
+    #resultBox.ok{background:#e6f4ea;border:1px solid #b7dfc1;color:#137333;}
+    #resultBox.warn{background:#fef7e0;border:1px solid #f2d38a;color:#9c6500;}
+    #resultBox.err{background:#fce8e6;border:1px solid #f3b4ae;color:#c5221f;}
+    #resultBox b{display:block;margin-bottom:6px;}
+    .kv{display:flex;justify-content:space-between;padding:2px 0;}
+    .kv span:first-child{color:#666;}
+    .licenseKey{font-family:monospace;font-weight:700;letter-spacing:.03em;background:#fff;padding:2px 6px;border-radius:4px;}
+    #closeBtn{margin-top:10px;width:100%;padding:8px;background:#f1f3f4;border:none;border-radius:6px;cursor:pointer;font-size:12.5px;display:none;}
+  </style>
+</head>
+<body>
+  <h3>New Client / Project / License</h3>
+  <div class="sub">Punan ang mga detalye — awtomatikong ide-dedupe ng system kung existing na ang client o project.</div>
+
+  <form id="clientForm">
+    <div class="field">
+      <label>Client Name <span class="required">*</span></label>
+      <input type="text" id="clientName" placeholder="e.g. ABC Construction" required>
+    </div>
+    <div class="field">
+      <label>Email <span class="required">*</span></label>
+      <input type="email" id="email" placeholder="e.g. abc@email.com" required>
+    </div>
+    <div class="field">
+      <label>Company</label>
+      <input type="text" id="company" placeholder="e.g. ABC Construction Inc.">
+    </div>
+    <div class="field">
+      <label>Project Name <span class="required">*</span></label>
+      <input type="text" id="projectName" placeholder="e.g. Tower A" required>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>License Type</label>
+        <select id="licenseType">
+          <option value="Project">Project</option>
+          <option value="Standard">Standard</option>
+          <option value="Enterprise">Enterprise</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Duration (months)</label>
+        <input type="number" id="durationMonths" value="12" min="1" max="60">
+      </div>
+    </div>
+    <button type="submit" id="submitBtn">Create License</button>
+  </form>
+
+  <div id="resultBox"></div>
+  <button id="closeBtn" onclick="google.script.host.close()">Close</button>
+
+  <script>
+    const form = document.getElementById('clientForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const resultBox = document.getElementById('resultBox');
+    const closeBtn = document.getElementById('closeBtn');
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating…';
+      resultBox.style.display = 'none';
+
+      const payload = {
+        clientName: document.getElementById('clientName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        company: document.getElementById('company').value.trim(),
+        projectName: document.getElementById('projectName').value.trim(),
+        licenseType: document.getElementById('licenseType').value,
+        durationMonths: Number(document.getElementById('durationMonths').value) || 12,
+      };
+
+      google.script.run
+        .withSuccessHandler(onResult)
+        .withFailureHandler(onError)
+        .submitClientForm(payload);
+    });
+
+    function onResult(res){
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create License';
+      resultBox.style.display = 'block';
+
+      if(res.ok){
+        resultBox.className = 'ok';
+        resultBox.innerHTML =
+          '<b>' + res.status + '</b>' +
+          '<div class="kv"><span>Client ID</span><span>' + res.client_id + '</span></div>' +
+          '<div class="kv"><span>Project ID</span><span>' + res.project_id + '</span></div>' +
+          '<div class="kv"><span>License ID</span><span>' + res.license_id + '</span></div>' +
+          '<div class="kv"><span>License Key</span><span class="licenseKey">' + res.license_key + '</span></div>' +
+          '<div class="kv"><span>Expires</span><span>' + res.expires_label + '</span></div>';
+        form.style.display = 'none';
+        closeBtn.style.display = 'block';
+      } else if(res.status && res.status.indexOf('already exists') !== -1){
+        resultBox.className = 'warn';
+        resultBox.innerHTML =
+          '<b>' + res.status + '</b>' +
+          '<div class="kv"><span>Client ID</span><span>' + (res.client_id||'—') + '</span></div>' +
+          '<div class="kv"><span>Project ID</span><span>' + (res.project_id||'—') + '</span></div>' +
+          '<div class="kv"><span>License ID</span><span>' + (res.license_id||'—') + '</span></div>' +
+          '<div class="kv"><span>License Key</span><span class="licenseKey">' + (res.license_key||'—') + '</span></div>' +
+          '<div style="margin-top:6px;">' + res.notes + '</div>';
+        closeBtn.style.display = 'block';
+      } else {
+        resultBox.className = 'err';
+        resultBox.innerHTML = '<b>' + res.status + '</b>' + (res.notes||'');
+      }
+    }
+
+    function onError(err){
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create License';
+      resultBox.style.display = 'block';
+      resultBox.className = 'err';
+      resultBox.innerHTML = '<b>⚠ Error</b>' + err.message;
+    }
+  </script>
+</body>
+</html>
