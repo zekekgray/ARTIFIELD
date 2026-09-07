@@ -1,0 +1,464 @@
+ARTIFILED LAUNCHER : https://script.google.com/macros/s/AKfycbzhiFy-x6oEBHhmmu1rkwasMSFroKgVKq3YMNNHDWq5kW_hu5ZhlVzW20irMKlhQWT_/exec
+
+
+
+
+gs code
+
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('ARTIFIELD')
+    .addItem('Open ARTIFIELD', 'showArtifieldLauncher')
+    .addToUi();
+}
+
+function showArtifieldLauncher() {
+  const html = HtmlService
+    .createHtmlOutputFromFile('index')
+    .setWidth(900)
+    .setHeight(650);
+
+  SpreadsheetApp.getUi()
+    .showModalDialog(html, 'ARTIFIELD');
+}
+
+function doGet() {
+  return HtmlService
+    .createHtmlOutputFromFile('index')
+    .setTitle('ARTIFIELD');
+}
+
+/**
+ * Called by the frontend via google.script.run.getVersionInfo().
+ *
+ * Reads from Script Properties:
+ *   LATEST_VERSION
+ *   LATEST_VERSION_URL
+ *
+ *   VERSION_1_NAME / VERSION_1_URL / VERSION_1_STATUS
+ *   VERSION_2_NAME / VERSION_2_URL / VERSION_2_STATUS
+ *   ... (numbered sequentially, stops at first gap)
+ *
+ * Returns:
+ *   {
+ *     latestVersion: string,
+ *     latestUrl: string,
+ *     versions: [{ name: string, url: string, status: string }]
+ *   }
+ *
+ * Throws an Error if LATEST_VERSION or LATEST_VERSION_URL is missing,
+ * which the frontend's withFailureHandler() will catch.
+ */
+function getVersionInfo() {
+
+  const props = PropertiesService.getScriptProperties();
+
+  const latestVersion = props.getProperty('LATEST_VERSION');
+  const latestUrl = props.getProperty('LATEST_VERSION_URL');
+
+  if (!latestVersion || !latestUrl) {
+    throw new Error(
+      'Missing required Script Properties: LATEST_VERSION and/or LATEST_VERSION_URL.'
+    );
+  }
+
+  const versions = [];
+  let i = 1;
+
+  while (true) {
+
+    const name = props.getProperty('VERSION_' + i + '_NAME');
+    const url = props.getProperty('VERSION_' + i + '_URL');
+
+    if (!name || !url) {
+      break;
+    }
+
+    const status = props.getProperty('VERSION_' + i + '_STATUS') || '';
+
+    versions.push({
+      name: name,
+      url: url,
+      status: status
+    });
+
+    i++;
+
+  }
+
+  return {
+    latestVersion: latestVersion,
+    latestUrl: latestUrl,
+    versions: versions
+  };
+
+}
+
+
+
+
+
+
+
+html
+
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <title>ARTIFIELD — Application Access</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      color: #f5f5f5;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 620px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .brand {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      margin-bottom: 42px;
+      color: #ffffff;
+    }
+
+    .welcome {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 22px;
+      letter-spacing: -0.4px;
+      color: #ffffff;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: #b3b3b3;
+      margin-bottom: 42px;
+    }
+
+    .version-card {
+      background: #111111;
+      border: 1px solid #262626;
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow:
+        0 1px 2px rgba(255, 255, 255, 0.05),
+        0 12px 24px rgba(255, 255, 255, 0.06),
+        0 32px 64px rgba(0, 0, 0, 0.6);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .version-card:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        0 2px 4px rgba(255, 255, 255, 0.08),
+        0 16px 32px rgba(255, 255, 255, 0.10),
+        0 40px 80px rgba(0, 0, 0, 0.7);
+    }
+
+    .label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #999999;
+      margin-bottom: 10px;
+    }
+
+    .version {
+      font-size: 25px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: #ffffff;
+    }
+
+    .error-text {
+      font-size: 13px;
+      color: #ff4d4d;
+      margin-top: -12px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .open-button {
+      display: inline-block;
+      width: 100%;
+      max-width: 300px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #000000;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s ease, background 0.2s ease;
+    }
+
+    .open-button:hover {
+      opacity: 0.82;
+    }
+
+    .open-button[aria-disabled="true"] {
+      background: #3a3a3a;
+      color: #777777;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .versions-link {
+      margin-top: 24px;
+      font-size: 13px;
+      color: #b3b3b3;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .versions {
+      display: none;
+      margin-top: 20px;
+      text-align: left;
+      border-top: 1px solid #262626;
+      padding-top: 18px;
+    }
+
+    .version-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid #1f1f1f;
+      font-size: 14px;
+      color: #f5f5f5;
+    }
+
+    .version-item a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .version-item a:hover {
+      text-decoration: underline;
+    }
+
+    .footer {
+      margin-top: 38px;
+      font-size: 11px;
+      color: #666666;
+      letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 28px 20px;
+      }
+
+      .welcome {
+        font-size: 20px;
+      }
+
+      .version-card {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="version-card">
+
+      <div class="label">
+        Latest Software Version
+      </div>
+
+      <div class="version" id="latestVersion">
+        Loading...
+      </div>
+
+      <div class="error-text" id="errorText">
+        Unable to load version info. Please refresh the page.
+      </div>
+
+      <a
+        id="openButton"
+        class="open-button"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-disabled="true"
+        onclick="return openButtonClick(event);">
+        Open ARTIFIELD
+      </a>
+
+      <div
+        class="versions-link"
+        onclick="toggleVersions()">
+        Check other versions
+      </div>
+
+      <div
+        id="versions"
+        class="versions">
+      </div>
+
+    </div>
+
+    <div class="footer">
+      ARTIFIELD • Software Access
+    </div>
+
+  </div>
+
+  <script>
+
+    /*
+      Script Properties expected:
+
+      LATEST_VERSION
+      LATEST_VERSION_URL
+
+      Optional:
+
+      VERSION_1_NAME
+      VERSION_1_URL
+      VERSION_1_STATUS
+
+      VERSION_2_NAME
+      VERSION_2_URL
+      VERSION_2_STATUS
+
+      etc.
+    */
+
+    window.addEventListener("DOMContentLoaded", function() {
+
+      google.script.run
+        .withSuccessHandler(renderVersions)
+        .withFailureHandler(handleLoadError)
+        .getVersionInfo();
+
+    });
+
+
+    function renderVersions(data) {
+
+      document.getElementById("latestVersion").textContent =
+        data.latestVersion;
+
+      const openButton =
+        document.getElementById("openButton");
+
+      openButton.href = data.latestUrl;
+      openButton.removeAttribute("aria-disabled");
+
+      const container =
+        document.getElementById("versions");
+
+      container.innerHTML = "";
+
+      if (!data.versions || data.versions.length === 0) {
+        return;
+      }
+
+      data.versions.forEach(function(version) {
+
+        const item =
+          document.createElement("div");
+
+        item.className = "version-item";
+
+        item.innerHTML = `
+          <span>${version.name}</span>
+          <a
+            href="${version.url}"
+            target="_blank"
+            rel="noopener noreferrer">
+            Open
+          </a>
+        `;
+
+        container.appendChild(item);
+
+      });
+
+    }
+
+
+    function handleLoadError(error) {
+
+      document.getElementById("latestVersion").textContent =
+        "Unavailable";
+
+      document.getElementById("errorText").style.display =
+        "block";
+
+      console.error("getVersionInfo failed:", error);
+
+    }
+
+
+    function openButtonClick(event) {
+
+      const openButton =
+        document.getElementById("openButton");
+
+      if (openButton.getAttribute("aria-disabled") === "true") {
+        event.preventDefault();
+        return false;
+      }
+
+      return true;
+
+    }
+
+
+    function toggleVersions() {
+
+      const element =
+        document.getElementById("versions");
+
+      if (element.style.display === "block") {
+
+        element.style.display = "none";
+
+      } else {
+
+        element.style.display = "block";
+
+      }
+
+    }
+
+  </script>
+
+</body>
+</html>
