@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ArtiSlide — ARTIFIELD Presentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0A0D12; --ink-2:#10151C;
+  --cream:#EDF1F5; --paper:#151B24; --paper-line:rgba(237,241,245,.1);
+  --gold:#4FC3F7; --gold-deep:#1F8FC7; --gold-line:rgba(79,195,247,.28);
+  --rust:#FFB020; --green-pos:#3DDC84;
+  --t1:#EDF1F5; --t2:rgba(237,241,245,.62); --t3:rgba(237,241,245,.42);
+  --c1:#EDF1F5; --c2:rgba(237,241,245,.62); --c3:rgba(237,241,245,.4);
+  --font-display:-apple-system,'SF Pro Display',Sora,Helvetica,Arial,sans-serif;
+  --font-ui:-apple-system,'SF Pro Text',Inter,Helvetica,Arial,sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --ease-settle:cubic-bezier(.16,1,.3,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --ease-exit:cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{font-family:var(--font-ui); color:var(--t1); background:var(--ink); overflow:hidden; position:relative;}
+::selection{ background:var(--gold); color:var(--ink); }
+button{ font-family:inherit; cursor:pointer; }
+input,textarea{ font-family:inherit; }
+#topline{position:fixed;top:0;left:0;right:0;height:2px;background:rgba(255,255,255,.06);z-index:61;}
+#topline-fill{height:100%;width:9%;background:#FFFFFF;transition:width .7s var(--ease-settle);}
+#track{position:absolute;top:0;left:0;width:100%;will-change:transform;transition:transform .82s var(--ease-settle);}
+.slide{height:100vh;width:100%;display:flex;flex-direction:column;overflow:hidden;background:var(--ink);color:var(--c1);}
+.slide-inner{flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 64px;max-width:1240px;width:100%;margin:0 auto;overflow-y:auto;min-height:0;}
+.slide-eyebrow{font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.09em;color:var(--gold);display:flex;align-items:center;gap:9px;margin-bottom:16px;}
+.slide-eyebrow .ln{width:18px;height:1px;background:var(--gold-line);}
+.slide-num-huge{display:none;}
+h1.h-display{font-family:var(--font-display);font-weight:800;letter-spacing:-.02em;line-height:1.03;margin:0 0 18px;font-size:clamp(34px,4.6vw,64px);}
+h2.h-section{font-family:var(--font-display);font-weight:800;letter-spacing:-.015em;line-height:1.07;margin:0 0 14px;font-size:clamp(28px,3.4vw,44px);}
+p.lede{font-size:17px;line-height:1.6;max-width:560px;margin:0 0 26px;color:var(--c2);}
+.btn{border:0;border-radius:14px;padding:15px 26px;font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;gap:9px;transition:transform .12s,opacity .12s,box-shadow .2s;}
+.btn:active{transform:scale(.96);}
+.btn-white-pill{background:#F7F3E9;color:#0A0D12;box-shadow:0 1px 2px rgba(0,0,0,.2),0 8px 20px rgba(0,0,0,.28);}
+.btn-white-pill:hover{box-shadow:0 2px 4px rgba(0,0,0,.2),0 14px 28px rgba(0,0,0,.32);}
+.btn-outline-dark{background:rgba(255,255,255,.05);color:var(--c1);border:1.5px solid rgba(255,255,255,.16);}
+.btn-outline-dark:hover{background:rgba(255,255,255,.09);}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;}
+.chip{padding:8px 15px;border-radius:20px;font-size:12.5px;font-weight:600;border:1.5px solid transparent;background:rgba(255,255,255,.06);color:var(--c1);border-color:rgba(255,255,255,.1);transition:transform .12s,background .15s,color .15s;}
+.chip.active{background:linear-gradient(150deg,var(--gold),var(--gold-deep));color:#04121A;border-color:transparent;}
+.chip:active{transform:scale(.94);}
+.stat-row{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap;}
+.stat-pill{padding:14px 18px;border-radius:16px;min-width:150px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);}
+.stat-pill .v{font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--gold);}
+.stat-pill .l{font-size:11px;margin-top:2px;color:var(--c3);}
+.card{border-radius:20px;padding:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);}
+.icon-tile{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#F5F0E6;color:#0A0D12;}
+.icon-tile svg{width:18px;height:18px;}
+.split{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;}
+.product-card{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:18px;margin-bottom:10px;transition:transform .16s var(--ease-spring);cursor:pointer;background:var(--paper);border:1px solid var(--paper-line);}
+.product-card:hover{transform:translateX(4px);}
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px;width:100%;}
+.problem-grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
+.problem-card{cursor:pointer;padding:13px 15px;border-radius:16px;box-sizing:border-box;width:100%;position:relative;}
+.problem-card .pc-head{display:flex;align-items:center;gap:10px;}
+.problem-card .icon-tile{width:32px;height:32px;border-radius:9px;}
+.problem-card .icon-tile svg{width:16px;height:16px;}
+.problem-card .pc-title{font-weight:600;font-size:13px;letter-spacing:-.005em;}
+.problem-detail{max-height:0;overflow:hidden;transition:max-height .34s var(--ease-settle);}
+.problem-card.open .problem-detail{max-height:120px;margin-top:12px;}
+.problem-detail-inner{font-size:12.5px;color:var(--c2);line-height:1.55;border-top:1px solid rgba(255,255,255,.09);padding-top:12px;}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:22px;}
+.feat-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;background:rgba(255,255,255,.04);}
+.feat-item .f-lbl{font-size:13px;font-weight:600;}
+.feat-item-modal{cursor:pointer;transition:transform .16s var(--ease-spring);}
+.feat-item-modal:active{transform:scale(.96);}
+.reveal-item{opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .5s var(--ease-settle),transform .5s var(--ease-settle);}
+.reveal-item.shown{opacity:1;transform:translateY(0);pointer-events:auto;}
+[data-idx] .feat-grid .feat-item{opacity:0;transform:translateY(10px);transition:opacity .4s var(--ease-settle),transform .4s var(--ease-settle);}
+[data-idx] .feat-grid.shown .feat-item{opacity:1;transform:translateY(0);}
+[data-idx] .feat-grid .feat-item:nth-child(1){transition-delay:0ms;}
+[data-idx] .feat-grid .feat-item:nth-child(2){transition-delay:110ms;}
+[data-idx] .feat-grid .feat-item:nth-child(3){transition-delay:220ms;}
+[data-idx] .feat-grid .feat-item:nth-child(4){transition-delay:330ms;}
+[data-idx] .feat-grid .feat-item:nth-child(5){transition-delay:440ms;}
+[data-idx] .feat-grid .feat-item:nth-child(6){transition-delay:550ms;}
+.char-reveal .char{display:inline-block;opacity:0;transform:translateY(6px);transition-property:opacity,transform;transition-timing-function:var(--ease-settle);will-change:opacity,transform;}
+.char-reveal.hiding .char{transition-delay:0s !important;transition-duration:.16s !important;}
+.char-reveal.shown .char{opacity:1;transform:translateY(0);}
+.vex-flow{display:flex;align-items:center;justify-content:center;gap:0;margin:26px 0 6px;flex-wrap:wrap;}
+.vex-node{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;opacity:0;transform:translateY(16px) scale(.9);transition:transform .55s var(--ease-spring),opacity .45s var(--ease-settle);pointer-events:none;}
+.vex-node.vn-show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+.vex-node:active{transform:scale(.97) !important;}
+.vex-node .icon-tile{width:112px;height:112px;border-radius:30px;background:#0F161E;border:1px solid var(--paper-line);box-shadow:0 4px 14px rgba(0,0,0,.3);transition:background-color .5s var(--ease-settle),border-color .5s var(--ease-settle);}
+.vex-node .icon-tile svg{width:48px;height:48px;color:#EDF1F5;transition:stroke .5s var(--ease-settle);}
+.vex-node-label{font-family:var(--font-ui);font-weight:700;font-size:13.5px;color:var(--t1);text-align:center;max-width:130px;line-height:1.25;transition:color .5s var(--ease-settle);}
+.vex-node-hub-icon-text{font-family:var(--font-mono);font-weight:700;font-size:20px;letter-spacing:.02em;color:#EDF1F5;text-align:center;line-height:1.15;}
+.vex-node.vex-node-lit .icon-tile{background-color:var(--gold);border-color:var(--gold);}
+.vex-node.vex-node-lit .icon-tile svg{stroke:#04121A;}
+.vex-node.vex-node-lit .vex-node-hub-icon-text{color:#04121A;}
+.vex-connector{flex:1;min-width:32px;max-width:72px;height:16px;position:relative;margin:0 2px;align-self:center;margin-top:-24px;}
+.vex-connector svg{width:100%;height:16px;overflow:visible;display:block;}
+.vex-connector-line{stroke:var(--gold-line);stroke-width:2;stroke-linecap:round;stroke-dasharray:120;stroke-dashoffset:120;transition:stroke-dashoffset .5s var(--ease-settle);}
+.vex-connector.vn-show .vex-connector-line{stroke-dashoffset:0;}
+.vex-connector-dot{position:absolute;top:50%;left:0;width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px 2px var(--gold-line);transform:translate(-3px,-50%);opacity:0;pointer-events:none;}
+.vex-connector.pulsing .vex-connector-dot{animation:vexDotTravel 1.05s var(--ease-settle) forwards;}
+@keyframes vexDotTravel{0%{left:0%;opacity:0;}8%{opacity:1;}92%{opacity:1;}100%{left:100%;opacity:0;}}
+.vex-flow-hint{text-align:center;font-size:11.5px;color:var(--t3);margin-top:14px;}
+.vex-together-layout{display:flex;align-items:center;gap:46px;flex-wrap:wrap;margin-top:6px;}
+.vex-flow-col{flex:1 1 480px;min-width:0;}
+.vex-together-layout .vex-flow{margin:20px 0 6px;}
+.vex-result-panel{flex:0 0 240px;width:240px;background:#0F161E;border:1px solid var(--paper-line);border-radius:24px;padding:26px 22px;text-align:center;opacity:0;transform:scale(.92) translateY(6px);pointer-events:none;transition:opacity .5s var(--ease-settle),transform .5s var(--ease-spring);}
+.vex-result-panel.shown{opacity:1;transform:scale(1) translateY(0);pointer-events:auto;}
+.vex-connector-toresult{flex:0 0 44px;width:44px;margin:0 2px;align-self:center;margin-top:0;}
+@media (max-width:900px){.vex-connector-toresult{display:none;}}
+.vex-result-ring-wrap{position:relative;width:128px;height:128px;margin:0 auto 16px;}
+.vex-result-ring{transition:stroke-dashoffset 1.1s cubic-bezier(.16,1,.3,1);}
+.vex-result-ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.vex-result-ring-num{font-family:var(--font-mono);font-weight:700;font-size:24px;color:#EDF1F5;}
+.vex-result-ring-sub{font-size:11px;color:var(--t3);margin-top:2px;}
+.vex-result-title{font-family:var(--font-display);font-weight:800;font-size:15px;color:#EDF1F5;margin-bottom:16px;line-height:1.3;}
+.vex-result-stats{display:flex;flex-direction:column;gap:0;}
+.vex-result-stat{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--paper-line);font-size:12px;}
+.vex-result-stat:first-child{border-top:0;}
+.vex-result-stat-label{color:var(--t3);text-align:left;}
+.vex-result-stat-val{color:#EDF1F5;font-weight:700;text-align:right;}
+@media (max-width:900px){.vex-together-layout{flex-direction:column;align-items:stretch;gap:22px;}.vex-result-panel{width:100%;flex:none;}}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px;}
+.compare-col{border-radius:20px;padding:22px;}
+.compare-col.old{background:#12181F;border:1px solid rgba(237,241,245,.12);color:#EDF1F5;}
+.compare-col.new{background:rgba(79,195,247,.06);border:1px solid var(--gold-line);}
+.compare-head{font-weight:800;font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.compare-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;font-size:13px;line-height:1.5;border-top:1px solid rgba(255,255,255,.08);opacity:0;transform:translateY(8px);}
+.compare-row:first-of-type{border-top:0;}
+.compare-row.shown{animation:rowIn .5s var(--ease-settle) forwards;}
+@keyframes rowIn{to{opacity:1;transform:translateY(0);}}
+.compare-row .mk{flex-shrink:0;font-weight:700;margin-top:1px;}
+.old .mk{color:#FF5C5C;}
+.new .mk{color:#3DDC84;}
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px;}
+.price-card{border-radius:24px;padding:26px;position:relative;overflow:hidden;}
+.price-card.medium{background:linear-gradient(160deg,#16202B,#0A0D12);color:var(--c1);border:1px solid rgba(237,241,245,.18);}
+.price-card.small{background:var(--paper);border:1px solid var(--paper-line);}
+.price-tag{font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:4px 11px;border-radius:20px;display:inline-block;margin-bottom:14px;background:#F7F3E9;color:#0A0D12;}
+.price-name{font-family:var(--font-ui);font-weight:800;font-size:22px;margin-bottom:4px;}
+.price-setup{display:flex;align-items:baseline;gap:8px;margin:14px 0 2px;}
+.price-setup .n{font-weight:700;font-size:34px;color:#EDF1F5;}
+.price-setup .l{font-size:11.5px;color:var(--c3);}
+.price-retention{font-size:12.5px;margin-bottom:18px;color:var(--c2);}
+.price-retention b{font-family:var(--font-mono);}
+.price-feats{display:flex;flex-direction:column;gap:9px;margin-bottom:20px;}
+.price-feat{display:flex;align-items:center;gap:9px;font-size:13px;}
+.price-feat .ck{color:#EDF1F5;}
+.price-note{text-align:center;font-size:11.5px;margin-top:14px;color:var(--t3);}
+.impact-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;}
+.slider-block{margin-bottom:24px;}
+.slider-head{display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;}
+.slider-head .sv{color:var(--gold);font-weight:700;}
+.slider-label-row{display:flex;align-items:center;gap:6px;}
+.slider-info-btn{width:16px;height:16px;border-radius:50%;background:rgba(255,176,32,.16);border:1px solid rgba(255,176,32,.4);color:var(--rust);font-family:var(--font-mono);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;}
+.slider-info-text{max-height:0;overflow:hidden;transition:max-height .28s var(--ease-settle);font-size:11.5px;color:var(--c2);line-height:1.5;}
+.slider-info-text.open{max-height:60px;margin-bottom:10px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:3px;background:rgba(255,255,255,.14);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);border:3px solid var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--gold);border:3px solid var(--ink);cursor:pointer;}
+.impact-result{border-radius:24px;padding:28px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);}
+.impact-big{font-size:44px;font-weight:700;color:var(--gold);letter-spacing:-.01em;}
+.impact-sub{font-size:12.5px;color:var(--c2);margin-top:2px;margin-bottom:20px;}
+.impact-mini-row{display:flex;gap:12px;margin-bottom:18px;}
+.impact-mini{flex:1;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.05);}
+.impact-mini .v{font-size:18px;font-weight:700;color:var(--c1);}
+.impact-mini .l{font-size:10.5px;color:var(--c3);margin-top:2px;}
+.impact-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.impact-bar-label{width:140px;font-size:11px;color:var(--c3);flex-shrink:0;}
+.impact-bar-track{flex:1;height:8px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden;}
+.impact-bar-fill{height:100%;border-radius:5px;transition:width .5s var(--ease-settle);}
+.impact-disclaimer{font-size:10.5px;color:var(--c3);margin-top:14px;line-height:1.5;}
+.talk-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:flex-start;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11.5px;font-weight:600;color:var(--c2);margin-bottom:7px;}
+.field input,.field textarea{width:100%;padding:13px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--c1);font-size:13.5px;outline:none;resize:none;transition:border-color .15s;}
+.field input:focus,.field textarea:focus{border-color:var(--gold-line);}
+.talk-chip-row{display:flex;gap:8px;margin-top:6px;}
+.talk-submit{position:relative;overflow:hidden;width:100%;margin-top:6px;justify-content:center;}
+.talk-submit .btn-content{display:flex;align-items:center;gap:8px;transition:opacity .16s var(--ease-exit);}
+.talk-submit.loading .btn-content,.talk-submit.success .btn-content{opacity:0;}
+.talk-submit .btn-status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;opacity:0;pointer-events:none;transition:opacity .16s var(--ease-exit);font-weight:700;}
+.talk-submit.loading .status-loading{opacity:1;}
+.talk-submit.success .status-success{opacity:1;}
+.spinner{width:15px;height:15px;border-radius:50%;border:2px solid rgba(4,18,26,.25);border-top-color:#04121A;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.talk-footer{margin-top:34px;display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--c3);flex-direction:column;text-align:center;gap:10px;}
+.privacy-badge-float{position:absolute;top:8px;right:0;left:0;max-width:280px;margin:0 0 0 auto;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:12px 15px;display:flex;align-items:center;gap:10px;cursor:pointer;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(10px) scale(.96);transition:opacity .55s var(--ease-settle),transform .55s var(--ease-spring),visibility .55s;box-shadow:0 14px 32px rgba(0,0,0,.22);}
+.privacy-badge-float.visible{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0) scale(1);}
+@media (max-width:900px){.privacy-badge-float{position:static;max-width:100%;margin-top:14px;}}
+.privacy-badge-icon{width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#EDF1F5;}
+.privacy-badge-icon svg{width:16px;height:16px;}
+.privacy-badge-text{font-size:12px;line-height:1.4;color:var(--c2);}
+.privacy-badge-text b{color:var(--c1);font-weight:700;display:block;font-size:12.5px;margin-bottom:1px;}
+.problem-modal{position:fixed;z-index:9700;width:320px;max-width:calc(100vw - 24px);background:#F5F0E6;border:1px solid rgba(20,19,16,.08);border-radius:22px;padding:22px 22px;box-shadow:0 28px 64px rgba(20,19,16,.2),0 4px 12px rgba(20,19,16,.1);opacity:0;visibility:hidden;pointer-events:none;transform:scale(.88) translateY(6px);transition:opacity .28s var(--ease-settle) .02s,transform .46s var(--ease-spring) .02s,visibility .28s;}
+.problem-modal.open{opacity:1;visibility:visible;pointer-events:auto;transform:scale(1) translateY(0);}
+.problem-modal-icon{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:rgba(20,19,16,.05);border:1px solid rgba(20,19,16,.08);margin-bottom:14px;color:#1C1C1E;}
+.problem-modal-icon svg{width:20px;height:20px;}
+.problem-modal-title{font-family:var(--font-display);font-weight:800;font-size:17px;color:#1C1C1E;margin-bottom:6px;}
+.problem-modal-sub{font-size:12px;color:rgba(28,28,30,.5);margin-bottom:14px;}
+.problem-modal-body{font-size:13px;line-height:1.6;color:rgba(28,28,30,.72);border-top:1px solid rgba(20,19,16,.08);padding-top:14px;}
+.problem-modal-cost{display:none;align-items:center;padding:5px 12px;border-radius:14px;font-family:var(--font-mono);font-size:11px;font-weight:700;margin-bottom:12px;}
+.problem-modal-cost.qualitative{background:rgba(20,19,16,.06);color:#1C1C1E;}
+.problem-modal-solution{display:none;font-size:12.5px;line-height:1.6;color:rgba(28,28,30,.72);margin-top:12px;padding-top:12px;border-top:1px solid rgba(20,19,16,.08);}
+.problem-modal-solution b{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(28,28,30,.45);margin-bottom:6px;font-weight:700;}
+.problem-modal-cta{display:none;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:16px;padding:12px 16px;border-radius:14px;border:0;background:#1C1C1E;color:#F5F0E6;font-weight:700;font-size:12.5px;}
+.problem-modal-cta:active{transform:scale(.97);}
+.problem-modal-steps{display:flex;flex-direction:column;gap:12px;}
+.problem-modal-step-row{display:flex;gap:12px;align-items:flex-start;}
+.problem-modal-step-num{font-family:var(--font-ui);font-weight:700;font-size:12px;color:#1C1C1E;opacity:.45;width:20px;flex-shrink:0;}
+.problem-modal-step-txt{font-size:13px;line-height:1.55;color:rgba(28,28,30,.72);}
+.problem-modal-arrow{position:absolute;width:16px;height:16px;background:#F5F0E6;border:1px solid rgba(20,19,16,.08);transform:rotate(45deg);z-index:-1;}
+.problem-modal-arrow.side-bottom{bottom:-8px;border-top:none;border-left:none;}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:rgba(10,13,18,.94);backdrop-filter:blur(16px);border-radius:14px;padding:12px 22px;color:#EDF1F5;font-size:13px;font-weight:600;z-index:99900;pointer-events:none;border:1px solid var(--gold-line);}
+.toast.show{animation:toastIn .3s var(--ease-settle) forwards;}
+@keyframes toastIn{to{opacity:1;transform:translateX(-50%) translateY(0);}}
+.next-arrow-btn{position:fixed;top:22px;right:22px;z-index:9500;width:48px;height:48px;border-radius:50%;background:#F7F3E9;border:none;display:flex;align-items:center;justify-content:center;color:#0A0D12;box-shadow:0 1px 2px rgba(0,0,0,.15),0 6px 16px rgba(0,0,0,.25),0 14px 32px rgba(0,0,0,.2);transition:transform .3s var(--ease-spring),box-shadow .35s var(--ease-settle),opacity .25s,visibility .25s;}
+.next-arrow-btn svg{width:22px;height:22px;}
+.next-arrow-btn:hover{transform:translateY(-2px);}
+.next-arrow-btn:active{transform:translateY(0) scale(.9);}
+.next-arrow-btn.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.nextarrow-hint{position:fixed;top:26px;right:82px;z-index:9499;background:rgba(16,21,28,.65);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);color:#EDF1F5;font-size:12.5px;font-weight:600;letter-spacing:-.005em;padding:11px 18px;border-radius:16px;white-space:nowrap;border:1px solid rgba(255,255,255,.16);box-shadow:0 10px 30px rgba(0,0,0,.4);opacity:0;transform:translateX(10px) scale(.94);pointer-events:none;transition:opacity .55s var(--ease-settle),transform .55s var(--ease-spring);}
+.nextarrow-hint.visible{opacity:1;transform:translateX(0) scale(1);}
+.tips-btn,.notif-btn{position:fixed;top:22px;z-index:9500;width:48px;height:48px;background:transparent;border:none;box-shadow:none;display:flex;align-items:center;justify-content:center;color:#F5F0E6;transition:transform .3s var(--ease-spring),opacity .2s;}
+.tips-btn{left:22px;}
+.notif-btn{left:78px;}
+.tips-btn svg,.notif-btn svg{width:22px;height:22px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35));}
+.tips-btn:hover,.notif-btn:hover{transform:translateY(-2px);opacity:.8;}
+.tips-panel,.notif-panel{position:fixed;top:82px;left:22px;z-index:9500;width:280px;max-width:calc(100vw - 44px);background:#F5F0E6;border:1px solid rgba(20,19,16,.08);border-radius:22px;padding:20px 20px;box-shadow:0 28px 64px rgba(20,19,16,.2),0 4px 12px rgba(20,19,16,.1);opacity:0;visibility:hidden;pointer-events:none;transform:scale(.9) translateY(-6px);transform-origin:top left;transition:opacity .28s var(--ease-settle),transform .32s var(--ease-spring),visibility .28s;}
+.tips-panel.open,.notif-panel.open{opacity:1;visibility:visible;pointer-events:auto;transform:scale(1) translateY(0);}
+.tips-panel-title,.notif-panel-title{font-family:var(--font-ui);font-weight:700;font-size:13px;color:#1C1C1E;margin-bottom:12px;}
+.tips-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:12.5px;line-height:1.5;color:rgba(28,28,30,.72);}
+.tips-key{flex-shrink:0;font-family:var(--font-ui);font-size:11px;font-weight:600;color:#1C1C1E;background:rgba(20,19,16,.06);border-radius:8px;padding:3px 7px;white-space:nowrap;}
+.notif-panel-body{font-size:12.5px;line-height:1.55;color:rgba(28,28,30,.72);}
+.version-static{position:fixed;bottom:22px;right:18px;z-index:99999;font-family:var(--font-mono);font-size:10.5px;font-weight:600;color:rgba(237,241,245,.32);letter-spacing:.02em;cursor:pointer;user-select:none;padding:10px 12px;pointer-events:none;opacity:0;visibility:hidden;transition:color .2s,opacity .3s;}
+.version-static.show{pointer-events:auto;opacity:1;visibility:visible;}
+#welcome-screen{position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;transition:opacity .6s var(--ease-settle),visibility .6s;}
+#welcome-screen.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.welcome-inner{max-width:460px;display:flex;flex-direction:column;align-items:center;opacity:0;transform:translateY(4px);transition:opacity .45s var(--ease-settle),transform .45s var(--ease-settle);}
+.welcome-inner.fonts-ready{opacity:1;transform:translateY(0);}
+.welcome-title{font-family:var(--font-display);font-weight:800;letter-spacing:-.02em;font-size:clamp(28px,4.6vw,42px);line-height:1.14;color:var(--c1);margin:20px 0 12px;}
+.welcome-sub{font-size:14.5px;color:var(--c2);line-height:1.6;max-width:360px;margin:0 0 32px;}
+#message-overlay{position:fixed;inset:0;z-index:9998;background:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .5s var(--ease-settle);pointer-events:none;}
+#message-overlay.hidden{display:none;}
+#message-overlay.visible{opacity:1;pointer-events:auto;}
+@media (max-width:900px){
+  .split,.impact-grid,.talk-grid{grid-template-columns:1fr;gap:26px;}
+  .compare-grid,.price-grid,.feat-grid,.problem-grid{grid-template-columns:1fr;}
+  .slide-inner{padding:20px 22px;}
+  h1.h-display{font-size:clamp(24px,7vw,40px);margin-bottom:10px;}
+  h2.h-section{font-size:clamp(20px,5.5vw,32px);margin-bottom:8px;}
+  p.lede{font-size:14px;margin-bottom:14px;}
+}
+</style>
+</head>
+<body>
+<div id="topline"><div id="topline-fill"></div></div>
+
+<div id="welcome-screen">
+  <div class="welcome-inner">
+    <div class="welcome-title">One tower.<br>Every trade, every peso.</div>
+    <div class="welcome-sub">ARTIFIELD — schedule, cost, and materials, standardized by Vex AI and read by one decision engine.</div>
+    <button class="btn btn-white-pill" id="welcome-cta-btn" onclick="enterDashboard()">Enter ArtiSlide</button>
+  </div>
+</div>
+
+<div id="message-overlay" class="hidden">
+  <div style="text-align:center;">
+    <div class="char-reveal" id="overlay-wordmark-text" style="font-size:60px;color:#FFFFFF;font-weight:800;"></div>
+    <div class="char-reveal" id="overlay-sub-text" style="font-size:13px;color:var(--c2);letter-spacing:.02em;margin-top:8px;"></div>
+  </div>
+</div>
+<div class="version-static show" id="version-static">v1.2.0.0.0.0.0.0</div>
+
+<div id="stage">
+  <div id="track">
+
+    <!-- 0 THE REALITY -->
+    <section class="slide" data-idx="0">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>THE REALITY</div>
+        <h2 class="h-section" style="max-width:640px;margin-bottom:14px;font-size:clamp(22px,2.6vw,30px);line-height:1.2;"><span id="reality-heading-text" class="char-reveal"></span></h2>
+        <p class="lede reveal-item" data-step="1"><span id="reality-lede-text" class="char-reveal"></span></p>
+        <div class="problem-grid cols-3">
+          <div class="card problem-card reveal-item" data-step="2" onclick="openProblemModal(this)" data-solution="ARTIFIELD reads the schedule, cost sheet, or NCR log itself — Vex extracts it into one live database." data-target="2" data-target-label="Consolidated Gantt">
+            <div class="pc-head"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5V12c0 1.7 3.6 3 8 3s8-1.3 8-3V5.5"/><path d="M4 12v6.5c0 1.7 3.6 3 8 3s8-1.3 8-3V12"/></svg></div><div><div class="pc-title">Schedule lives in 12 Excel files</div></div></div>
+            <div class="problem-detail"><div class="problem-detail-inner">Every trade keeps its own CSA sheet, updated on its own schedule — nobody has one number for "where are we today."</div></div>
+          </div>
+          <div class="card problem-card reveal-item" data-step="3" onclick="openProblemModal(this)" data-solution="ARTIFIELD's EVM engine computes CPI, EAC and VAC live, per building, the moment cost entries land." data-target="3" data-target-label="Finance & Cost">
+            <div class="pc-head"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 6.5C17 4.6 14.8 3 12 3S7 4.6 7 6.5 9.2 9.5 12 9.5s5 1.5 5 3.5-2.2 3.5-5 3.5-5-1.5-5-3.5"/></svg></div><div><div class="pc-title">Cost overruns discovered at closeout</div></div></div>
+            <div class="problem-detail"><div class="problem-detail-inner">Budget vs. actual gets reconciled once, at the end — by then the overrun is already baked into the building.</div></div>
+          </div>
+          <div class="card problem-card reveal-item" data-step="4" onclick="openProblemModal(this)" data-cost="Site downtime" data-cost-type="qualitative" data-solution="ARTIFIELD tracks days-of-supply against lead time per SKU, per building, and flags shortages before the crew is idle." data-target="4" data-target-label="Materials & Supply">
+            <div class="pc-head"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></div><div><div class="pc-title">Material runs out mid-pour</div></div></div>
+            <div class="problem-detail"><div class="problem-detail-inner">Nobody was watching the stockroom against the lead time, so the crew stands idle waiting on cement that should've been ordered two weeks ago.</div></div>
+          </div>
+          <div class="card problem-card reveal-item" data-step="5" onclick="openProblemModal(this)" data-cost="Rework risk" data-cost-type="qualitative" data-solution="ARTIFIELD's clash engine flags sequence violations and space/time overlaps automatically, per floor, per trade." data-target="5" data-target-label="Clash & Sequence Log">
+            <div class="pc-head"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><line x1="12" y1="9" x2="12" y2="13.5"/></svg></div><div><div class="pc-title">Two trades collide on the same floor</div></div></div>
+            <div class="problem-detail"><div class="problem-detail-inner">Plumbing rough-in starts before CSA finishing clears — nobody flagged the sequence conflict until the crews were already on site.</div></div>
+          </div>
+          <div class="card problem-card reveal-item" data-step="6" onclick="openProblemModal(this)" data-cost="Fragmented records" data-cost-type="qualitative" data-solution="ARTIFIELD ties RFIs, VOs, NCRs and quantity takedowns to the same schedule and cost database." data-target="4" data-target-label="Field Data (Vex)">
+            <div class="pc-head"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg></div><div><div class="pc-title">RFIs, VOs, NCRs in separate binders</div></div></div>
+            <div class="problem-detail"><div class="problem-detail-inner">Variation orders and NCRs live in their own folders, disconnected from the schedule and cost they actually affect.</div></div>
+          </div>
+          <div class="card problem-card reveal-item" data-step="7" onclick="openProblemModal(this)" data-cost="Decision bottleneck" data-cost-type="qualitative" data-solution="Vex AI surfaces the structural finding — the PM approves or overrides, from anywhere." data-target="6" data-target-label="Meet Vex AI">
+            <div class="pc-head"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M18 8v5M15.5 10.5h5"/></svg></div><div><div class="pc-title">Every decision waits for the PM</div></div></div>
+            <div class="problem-detail"><div class="problem-detail-inner">A schedule shift or cost flag sits idle until the project manager is free to review yet another spreadsheet.</div></div>
+          </div>
+        </div>
+        <div class="reveal-item" data-step="8" style="margin-top:26px;display:flex;justify-content:flex-end;">
+          <div>
+            <div style="font-family:var(--font-display);font-weight:800;letter-spacing:-.02em;font-size:clamp(22px,2.6vw,30px);color:var(--c1);line-height:1.2;"><span id="reality-itworks-text" class="char-reveal"></span></div>
+            <div style="font-family:var(--font-display);font-weight:800;letter-spacing:-.02em;font-size:clamp(22px,2.6vw,30px);color:var(--c3);line-height:1.2;"><span id="reality-untilbusy-text" class="char-reveal"></span></div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;">
+          <button class="btn btn-white-pill reveal-item" id="reality-cta-btn" onclick="goToImpact();">
+            Estimate Your Impact
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1 THE ENGINE -->
+    <section class="slide" data-idx="1">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>THE ENGINE</div>
+        <div class="split">
+          <div>
+            <h2 class="h-section" id="dev-heading"><span id="dev-heading-text" class="char-reveal"></span></h2>
+            <p class="lede" id="dev-lede1"><span id="dev-lede1-text" class="char-reveal"></span></p>
+          </div>
+          <div>
+            <div class="product-card reveal-item" data-step="2" onclick="openProductModal(this,'ARTIFIELD','Schedule · Cost · Supply — one decision engine','A single Google Sheets-backed control tower for construction — Consolidated Gantt, EVM cost tracking, and material shortage forecasting, all reading from the same imported data.',2,'ARTIFIELD')">
+              <div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="14" y2="6"/><line x1="4" y1="12" x2="19" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg></div>
+              <div style="flex:1;"><div style="font-weight:700;font-size:14.5px;">ARTIFIELD</div><div style="font-size:12px;color:var(--t2);">Schedule · Cost · Supply</div></div>
+            </div>
+            <div class="product-card reveal-item" data-step="3" onclick="openProductModal(this,'Vex AI','Document standardization engine','Reads any construction document — schedule, cost sheet, NCR log, RFI — and outputs one strictly-formatted JSON schema ARTIFIELD can trust, with confidence flags on every record.',6,'Meet Vex AI')">
+              <div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h.01M15 9h.01M9 15c1 1 5 1 6 0"/></svg></div>
+              <div style="flex:1;"><div style="font-weight:700;font-size:14.5px;">Vex AI</div><div style="font-size:12px;color:var(--t2);">Document standardization</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal-item" data-step="4" style="margin-top:26px;display:flex;justify-content:flex-start;align-items:center;flex-wrap:wrap;gap:22px;">
+          <div>
+            <div style="font-family:var(--font-display);font-weight:800;letter-spacing:-.02em;font-size:clamp(22px,2.6vw,30px);color:var(--t1);line-height:1.2;"><span id="dev-notspread-text" class="char-reveal"></span></div>
+            <div style="font-family:var(--font-display);font-weight:800;letter-spacing:-.02em;font-size:clamp(22px,2.6vw,30px);color:var(--t3);line-height:1.2;"><span id="dev-watchesyou-text" class="char-reveal"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 SCHEDULE -->
+    <section class="slide" data-idx="2">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>SCHEDULE INTELLIGENCE</div>
+        <div class="split">
+          <div>
+            <h2 class="h-section" id="schedule-heading"><span id="schedule-heading-text" class="char-reveal"></span></h2>
+            <p class="lede reveal-item" data-step="1"><span id="schedule-lede-text" class="char-reveal"></span></p>
+            <div class="feat-grid reveal-item" data-step="2">
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Consolidated Gantt','Every building, every trade, one timeline','Building → Trade → Task hierarchy with baseline compare, focus modes, and today-line horizon bands, built from every imported schedule file.',2,'ARTIFIELD')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="14" y2="6"/><line x1="4" y1="12" x2="19" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg></div><div class="f-lbl">Consolidated Gantt</div></div>
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'SPI &amp; S-Curves','Planned vs actual, weight-based','Time-phased planned value against logged accomplishment, weighted by task WT%, drawn as a live S-Curve per building and per trade.',2,'ARTIFIELD')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c3-1 4-6 7-8s5 6 8 4"/><path d="M3 21h18"/></svg></div><div class="f-lbl">SPI &amp; S-Curves</div></div>
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Clash &amp; Sequence Log','Cross-trade conflicts, caught automatically','Every building/floor is scanned for overlapping trades and predecessor/successor violations — flagged before the crews collide on site.',5,'Clash &amp; Sequence Log')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><line x1="12" y1="9" x2="12" y2="13.5"/></svg></div><div class="f-lbl">Clash &amp; Sequence Log</div></div>
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Named Baselines','Compare against Day 1','Save a full snapshot of every task at any milestone, then compare it against current or any other baseline — see exactly what shifted.',2,'ARTIFIELD')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h13"/></svg></div><div class="f-lbl">Named Baselines</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 FINANCE -->
+    <section class="slide" data-idx="3">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>FINANCE &amp; COST</div>
+        <div class="split">
+          <div>
+            <h2 class="h-section" id="finance-heading"><span id="finance-heading-text" class="char-reveal"></span></h2>
+            <p class="lede reveal-item" data-step="1"><span id="finance-lede-text" class="char-reveal"></span></p>
+            <div class="feat-grid reveal-item" data-step="2">
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Earned Value Management','CPI, EAC, VAC — computed, not estimated','EV = budget × schedule progress. CPI = EV / actual cost. EAC degrades safely to budget when CPI is unreliable, instead of exploding into a nonsense number.',3,'Finance &amp; Cost')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 6.5C17 4.6 14.8 3 12 3S7 4.6 7 6.5 9.2 9.5 12 9.5s5 1.5 5 3.5-2.2 3.5-5 3.5-5-1.5-5-3.5"/></svg></div><div class="f-lbl">Earned Value Management</div></div>
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Per-building profitability','Contract value vs forecast, per project','Projected profit at completion is tracked per building, factoring in budget, actual cost, and committed-but-unpaid POs.',3,'Finance &amp; Cost')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/></svg></div><div class="f-lbl">Per-building profitability</div></div>
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Budget overrun warnings','Flagged before it closes out','When forecast (EAC) exceeds budget (BAC) for any building, it surfaces on the Dashboard immediately — not at project closeout.',3,'Finance &amp; Cost')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><line x1="12" y1="9" x2="12" y2="13.5"/></svg></div><div class="f-lbl">Budget overrun warnings</div></div>
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Variation Orders','Cost impact, tracked separately','VOs are never folded silently into cost entries — amount delta, status, and approval dates stay traceable on their own.',3,'Finance &amp; Cost')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg></div><div class="f-lbl">Variation Orders</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 MATERIALS -->
+    <section class="slide" data-idx="4">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>MATERIALS &amp; SUPPLY</div>
+        <div class="split">
+          <div>
+            <h2 class="h-section" id="materials-heading"><span id="materials-heading-text" class="char-reveal"></span></h2>
+            <p class="lede reveal-item" data-step="1"><span id="materials-lede-text" class="char-reveal"></span></p>
+            <div class="feat-grid reveal-item" data-step="2">
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Days-of-supply forecasting','Never idle a crew waiting on cement','On-hand quantity ÷ weekly consumption × 7 gives a real days-supply number, checked against lead time per SKU, per building.',4,'Materials &amp; Supply')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></div><div class="f-lbl">Days-of-supply forecasting</div></div>
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Shortage risk tiers','High / Medium / Low, ranked by urgency','Items are ranked by how far under lead time they are — so the most urgent reorder always surfaces first.',4,'Materials &amp; Supply')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="f-lbl">Shortage risk tiers</div></div>
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Field Data (Vex)','RFIs, NCRs, quantity takedowns — in one register','Every violation, RFI, and quantity takedown extracted by Vex lands in a searchable, traceable table tied back to the source row.',4,'Materials &amp; Supply')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/></svg></div><div class="f-lbl">Field Data (Vex)</div></div>
+              <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Manpower &amp; Banana Curves','7 curve types, not just physical progress','Cost, manpower, banana curve, and material S-curves — the full Volume &amp; Time-Based category, alongside physical progress.',4,'Materials &amp; Supply')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18c6-1 10-6 10-13"/><path d="M4 18c6 1 12-2 15-9"/></svg></div><div class="f-lbl">Manpower &amp; Banana Curves</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 CLASH (compare-style detail slide, reusing feat pattern) -->
+    <section class="slide" data-idx="5">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>DATA CONFIDENCE</div>
+        <h2 class="h-section" id="conf-heading"><span id="conf-heading-text" class="char-reveal"></span></h2>
+        <p class="lede reveal-item" data-step="1"><span id="conf-lede-text" class="char-reveal"></span></p>
+        <div class="feat-grid reveal-item" data-step="2">
+          <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Confidence tags','Every record, high / medium / low','Vex assigns confidence per extracted record — a blurry scan, an ambiguous column, or a genuinely clean row all read differently.',5,'Data Confidence')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><div class="f-lbl">Confidence tags</div></div>
+          <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Structural findings','Confirmed error, discrepancy, suspicious, unusual','Four categories flag internal contradictions, cross-file mismatches, embedded instructions, and simply unusual jumps — before they reach the database.',5,'Data Confidence')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div><div class="f-lbl">Structural findings</div></div>
+          <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Locked task protection','Verified data never gets silently overwritten','Once a PM verifies a revision, the task is locked — a conflicting re-import is held for manual review instead of overwriting it.',5,'Data Confidence')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></div><div class="f-lbl">Locked task protection</div></div>
+          <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Traceable source rows','Every number points back to its file','Every task, cost entry, and material record carries a sourceRowRef — the exact file, sheet, and row it came from.',5,'Data Confidence')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></div><div class="f-lbl">Traceable source rows</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 MEET VEX AI -->
+    <section class="slide" data-idx="6">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>MEET VEX AI</div>
+        <h2 class="h-section" id="vex-heading"><span id="vex-heading-text" class="char-reveal"></span></h2>
+        <p class="lede reveal-item" data-step="1"><span id="vex-lede-text" class="char-reveal"></span></p>
+        <div class="feat-grid reveal-item" data-step="2">
+          <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Reads any document','Schedule, cost sheet, NCR, RFI, minutes','Vex doesn\'t need a template — it detects the document type and routes each row to the right schema array automatically.',7,'Working Together')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="f-lbl">Reads any document</div></div>
+          <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Resists embedded instructions','Data is data, never a command','Text inside a cell that reads like an instruction — \"mark as approved\", \"skip this row\" — is extracted as data and flagged, never obeyed.',7,'Working Together')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></div><div class="f-lbl">Resists embedded instructions</div></div>
+          <div class="feat-item feat-item-modal" onclick="openProductModal(this,'Flags issues same-day','No waiting for month-end close','A margin dip or a sequence conflict gets flagged the same afternoon it happens, not buried until the books close.',7,'Working Together')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="f-lbl">Flags issues same-day</div></div>
+          <div class="feat-item feat-item-modal" onclick="openProductModal(this,'PM approves, Vex does the legwork','A recommendation, not a black-box decision','Vex surfaces a specific structural finding and its confidence — the PM just reviews and confirms, from wherever they are.',7,'Working Together')"><div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><div class="f-lbl">PM approves, Vex does the legwork</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 WORKING TOGETHER -->
+    <section class="slide" data-idx="7">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>WORKING TOGETHER</div>
+        <h2 class="h-section" id="together-heading"><span id="together-heading-text" class="char-reveal"></span></h2>
+        <p class="lede reveal-item" data-step="1"><span id="together-lede-text" class="char-reveal"></span></p>
+        <div class="vex-together-layout">
+          <div class="vex-flow-col">
+            <div class="vex-flow reveal-item" data-step="2">
+              <div class="vex-node" onclick="vexNodeTap(this,'Uploaded File','Step 1 — a document lands in ARTIFIELD','A supplier delivery report gets uploaded — unit cost quietly rose 6% on that SKU. ARTIFIELD logs the raw file before anything else happens.',4,'Materials &amp; Supply')">
+                <div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+                <div class="vex-node-label">Uploaded File</div>
+              </div>
+              <div class="vex-connector"><svg viewBox="0 0 100 16" preserveAspectRatio="none"><line class="vex-connector-line" x1="2" y1="8" x2="98" y2="8"/></svg><div class="vex-connector-dot"></div></div>
+              <div class="vex-node" onclick="vexNodeTap(this,'Vex AI','Step 2 — extracts, validates, flags','Vex reads the file, extracts the cost entry, checks it against Output Rules, and flags the price jump as UNUSUAL for review.',6,'Meet Vex AI')">
+                <div class="icon-tile"><span class="vex-node-hub-icon-text">VEX<br>AI</span></div>
+                <div class="vex-node-label">Vex AI</div>
+              </div>
+              <div class="vex-connector"><svg viewBox="0 0 100 16" preserveAspectRatio="none"><line class="vex-connector-line" x1="2" y1="8" x2="98" y2="8"/></svg><div class="vex-connector-dot"></div></div>
+              <div class="vex-node" onclick="vexNodeTap(this,'ARTIFIELD Database','Step 3 — one number, everywhere','Cost Entries, Schedule, and Materials tables update in the same transaction — CPI and forecast recalculate immediately.',3,'Finance &amp; Cost')">
+                <div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5V12c0 1.7 3.6 3 8 3s8-1.3 8-3V5.5"/><path d="M4 12v6.5c0 1.7 3.6 3 8 3s8-1.3 8-3V12"/></svg></div>
+                <div class="vex-node-label">ARTIFIELD Database</div>
+              </div>
+              <div class="vex-connector"><svg viewBox="0 0 100 16" preserveAspectRatio="none"><line class="vex-connector-line" x1="2" y1="8" x2="98" y2="8"/></svg><div class="vex-connector-dot"></div></div>
+              <div class="vex-node" onclick="vexNodeTap(this,'Project Manager','Step 4 — reviews and confirms','A budget overrun warning appears on the Dashboard the same day. The PM reviews the flagged entry and confirms the import — before month-end.',3,'Finance &amp; Cost')">
+                <div class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/></svg></div>
+                <div class="vex-node-label">Project Manager</div>
+              </div>
+            </div>
+            <div class="vex-flow-hint reveal-item" data-step="2">Tap any step — watch the signal travel to the next.</div>
+          </div>
+          <div class="vex-connector vex-connector-toresult" id="vex-connector-toresult"><svg viewBox="0 0 100 16" preserveAspectRatio="none"><line class="vex-connector-line" x1="2" y1="8" x2="98" y2="8"/></svg><div class="vex-connector-dot"></div></div>
+          <div class="vex-result-panel" id="vex-result-panel">
+            <div class="vex-result-ring-wrap">
+              <svg width="128" height="128" viewBox="0 0 128 128">
+                <circle cx="64" cy="64" r="54" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/>
+                <circle class="vex-result-ring" id="vex-result-ring" cx="64" cy="64" r="54" fill="none" stroke="#3DDC84" stroke-width="10" stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="339.3" transform="rotate(-90 64 64)"/>
+              </svg>
+              <div class="vex-result-ring-label">
+                <div class="vex-result-ring-num" id="vex-result-num">0%</div>
+                <div class="vex-result-ring-sub">Confidence</div>
+              </div>
+            </div>
+            <div class="vex-result-title">Cost flag caught &amp; reviewed — same day</div>
+            <div class="vex-result-stats">
+              <div class="vex-result-stat"><span class="vex-result-stat-label">Time to flag</span><span class="vex-result-stat-val">Same day</span></div>
+              <div class="vex-result-stat"><span class="vex-result-stat-label">Manual re-entry needed</span><span class="vex-result-stat-val">0</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 OLD WAY VS NEW -->
+    <section class="slide" data-idx="8">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>SPREADSHEET SITE VS ARTIFIELD</div>
+        <h2 class="h-section" id="compare-heading"><span id="compare-heading-text" class="char-reveal"></span></h2>
+        <div class="compare-grid">
+          <div class="compare-col old">
+            <div class="compare-head">Old way</div>
+            <div class="compare-row" data-step="1"><span class="mk">×</span><span>Each trade keeps its own CSA sheet, reconciled by hand</span></div>
+            <div class="compare-row" data-step="2"><span class="mk">×</span><span>Cost overruns discovered at project closeout</span></div>
+            <div class="compare-row" data-step="3"><span class="mk">×</span><span>Material shortages found when the crew is already idle</span></div>
+            <div class="compare-row" data-step="4"><span class="mk">×</span><span>Trade clashes discovered on site, not on paper</span></div>
+            <div class="compare-row" data-step="5"><span class="mk">×</span><span>RFIs, VOs, NCRs live in separate binders</span></div>
+          </div>
+          <div class="compare-col new">
+            <div class="compare-head">ARTIFIELD + Vex AI</div>
+            <div class="compare-row" data-step="1"><span class="mk">✓</span><span>One Consolidated Gantt, extracted from every trade's file</span></div>
+            <div class="compare-row" data-step="2"><span class="mk">✓</span><span>Live CPI/EAC/VAC, flagged the day the overrun appears</span></div>
+            <div class="compare-row" data-step="3"><span class="mk">✓</span><span>Days-of-supply vs lead time, forecast per SKU</span></div>
+            <div class="compare-row" data-step="4"><span class="mk">✓</span><span>Sequence &amp; space/time clashes flagged automatically</span></div>
+            <div class="compare-row" data-step="5"><span class="mk">✓</span><span>RFIs, VOs, NCRs tied to the same schedule and cost data</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 PRICING -->
+    <section class="slide" data-idx="9">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>PRICING</div>
+        <h2 class="h-section" id="pricing-heading"><span id="pricing-heading-text" class="char-reveal"></span></h2>
+        <p class="lede reveal-item" data-step="1"><span id="pricing-lede-text" class="char-reveal"></span></p>
+        <div class="price-grid">
+          <div class="price-card small reveal-item" data-step="2">
+            <div class="price-tag">SOLO</div>
+            <div class="price-name">Solo License</div>
+            <div class="price-setup"><span class="n">₱2,999</span><span class="l">/ month</span></div>
+            <div class="price-retention">For individual estimators, PMs, or consultants running one active project at a time.</div>
+            <div class="price-feats">
+              <div class="price-feat"><span class="ck">✓</span>Full ARTIFIELD schedule, cost &amp; materials engine</div>
+              <div class="price-feat"><span class="ck">✓</span>Vex AI document extraction</div>
+              <div class="price-feat"><span class="ck">✓</span>1 project, unlimited buildings</div>
+              <div class="price-feat"><span class="ck">✓</span>Standard email support</div>
+            </div>
+            <button class="btn btn-white-pill" style="width:100%;justify-content:center;" onclick="choosePlan('Solo');">Choose Solo</button>
+          </div>
+          <div class="price-card medium reveal-item" data-step="3">
+            <div class="price-tag">PROJECT</div>
+            <div class="price-name">Project License</div>
+            <div class="price-setup"><span class="n">₱75,000</span><span class="l">/ year</span></div>
+            <div class="price-retention">For construction projects and full project teams, across every building in the project.</div>
+            <div class="price-feats">
+              <div class="price-feat"><span class="ck">✓</span>Unlimited users on the project</div>
+              <div class="price-feat"><span class="ck">✓</span>Everything in Solo</div>
+              <div class="price-feat"><span class="ck">✓</span>Priority onboarding &amp; data migration</div>
+              <div class="price-feat"><span class="ck">✓</span>Monthly performance check-in</div>
+            </div>
+            <button class="btn btn-white-pill" style="width:100%;justify-content:center;" onclick="choosePlan('Project');">Choose Project</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 ESTIMATE YOUR IMPACT -->
+    <section class="slide" data-idx="10">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>ESTIMATE YOUR IMPACT</div>
+        <h2 class="h-section" id="impact-heading"><span id="impact-heading-text" class="char-reveal"></span></h2>
+        <div class="impact-grid">
+          <div>
+            <div class="slider-block">
+              <div class="slider-head"><span>Monthly project spend</span><span class="sv" id="v-revenue">₱5,000,000</span></div>
+              <input type="range" id="s-revenue" min="500000" max="200000000" step="100000" value="5000000" oninput="updateImpact()">
+            </div>
+            <div class="slider-block">
+              <div class="slider-head"><span>Hours/week reconciling schedules by hand</span><span class="sv" id="v-hours">15</span></div>
+              <input type="range" id="s-hours" min="0" max="60" step="1" value="15" oninput="updateImpact()">
+            </div>
+            <div class="slider-block">
+              <div class="slider-head"><span class="slider-label-row">Material-caused idle days per month<button class="slider-info-btn" type="button" onclick="toggleSliderInfo(this)">?</button></span><span class="sv" id="v-stockouts">3</span></div>
+              <div class="slider-info-text">Days a crew stood idle waiting on a delayed or under-ordered material.</div>
+              <input type="range" id="s-stockouts" min="0" max="20" step="1" value="3" oninput="updateImpact()">
+            </div>
+          </div>
+          <div class="impact-result">
+            <div class="impact-big" id="v-savings">₱0</div>
+            <div class="impact-sub">Estimated value recovered per month</div>
+            <div class="impact-mini-row">
+              <div class="impact-mini"><div class="v" id="v-hourssaved">0</div><div class="l">Hours saved / month</div></div>
+              <div class="impact-mini"><div class="v" id="v-payback">—</div><div class="l">Payback period</div></div>
+            </div>
+            <div class="impact-bar-row"><div class="impact-bar-label" id="impact-plan-label">Project license cost</div><div class="impact-bar-track"><div class="impact-bar-fill" id="bar-cost" style="background:var(--c3);"></div></div></div>
+            <div class="impact-bar-row"><div class="impact-bar-label">Monthly value back</div><div class="impact-bar-track"><div class="impact-bar-fill" id="bar-value" style="background:linear-gradient(90deg,var(--gold-deep),var(--gold));"></div></div></div>
+            <div class="impact-disclaimer">Illustrative estimate. Labor cost based on DOLE construction wage tiers plus statutory benefits loading. Idle-day impact modeled against average crew day-rate, capped at 8% of monthly spend. Actual savings vary by project.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 LET'S TALK -->
+    <section class="slide" data-idx="11">
+      <div class="slide-inner">
+        <div class="slide-eyebrow"><span class="ln"></span>LET'S TALK</div>
+        <div class="talk-grid">
+          <div>
+            <h2 class="h-section" id="talk-heading"><span id="talk-heading-text" class="char-reveal"></span></h2>
+            <p class="lede reveal-item" data-step="1"><span id="talk-lede-text" class="char-reveal"></span></p>
+            <div class="field reveal-item" data-step="2"><label>Full name</label><input type="text" id="talk-fullname" placeholder="e.g. Engr. Ramon Cruz"></div>
+            <div class="field reveal-item" data-step="2"><label>Company / Project</label><input type="text" id="talk-bizname" placeholder="e.g. Cruz Builders — Tower A"></div>
+            <div class="field reveal-item" data-step="2">
+              <label>Interested in</label>
+              <div class="talk-chip-row">
+                <div class="chip active" id="chip-small" onclick="selectPlanChip('small',this)">Solo</div>
+                <div class="chip" id="chip-medium" onclick="selectPlanChip('medium',this)">Project</div>
+                <div class="chip" id="chip-unsure" onclick="selectPlanChip('unsure',this)">Not sure yet</div>
+              </div>
+            </div>
+            <div class="field reveal-item" data-step="2"><label>Anything we should know?</label><textarea id="talk-notes" rows="3" placeholder="Number of buildings, current tools, timeline…"></textarea></div>
+            <button class="btn btn-white-pill talk-submit reveal-item" data-step="2" id="talk-submit-btn" onclick="submitTalk(this)">
+              <span class="btn-content">Send &amp; book a walkthrough</span>
+              <span class="btn-status status-loading"><span class="spinner"></span>Sending…</span>
+              <span class="btn-status status-success"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Sent</span>
+            </button>
+            <div class="talk-footer reveal-item" id="talk-footer">
+              <span>We reply within 1 business day.</span>
+              <span style="cursor:pointer;text-decoration:underline;text-underline-offset:3px;opacity:.65;" onclick="skipToClosing()">Skip for now</span>
+            </div>
+          </div>
+          <div style="position:relative;">
+            <div class="privacy-badge-float" id="privacy-badge-talk" onclick="openPrivacyModal(this)">
+              <div class="privacy-badge-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+              </div>
+              <div class="privacy-badge-text"><b>Your data is protected</b>Compliant with RA 10173 (Data Privacy Act) — tap for details</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 CLOSING -->
+    <section class="slide" data-idx="12">
+      <div class="slide-inner" style="align-items:center;text-align:center;">
+        <div class="slide-eyebrow"><span class="ln"></span>ABOUT THIS PRESENTATION</div>
+        <h2 class="h-section" style="max-width:620px;">Like what you just saw?</h2>
+        <p class="lede" style="max-width:560px;margin-left:auto;margin-right:auto;">This presentation is proprietary of Ambrozia / BlockPingg — the team behind ARTIFIELD and the ATH•NA OS Ecosystem. If you're ready to move from spreadsheets to a live decision engine, message our team now.</p>
+        <div class="btn-row" style="justify-content:center;margin-top:6px;">
+          <button class="btn btn-white-pill talk-submit" id="closing-message-btn" onclick="handleMessageTeamClick(this)">
+            <span class="btn-content">Message our ARTIFIELD team</span>
+            <span class="btn-status status-loading"><span class="spinner"></span>Sending…</span>
+            <span class="btn-status status-success"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Sent</span>
+          </button>
+          <button class="btn btn-outline-dark" onclick="restartPresentation();">Back to presentations</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="problem-modal" id="problem-modal">
+  <div class="problem-modal-arrow" id="problem-modal-arrow"></div>
+  <div class="problem-modal-icon" id="problem-modal-icon"></div>
+  <div class="problem-modal-title" id="problem-modal-title"></div>
+  <div class="problem-modal-sub" id="problem-modal-sub"></div>
+  <div class="problem-modal-cost" id="problem-modal-cost"></div>
+  <div class="problem-modal-body" id="problem-modal-body"></div>
+  <div class="problem-modal-solution" id="problem-modal-solution"></div>
+  <button class="problem-modal-cta" id="problem-modal-cta"></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<button class="tips-btn" id="tips-btn" onclick="toggleTips()" aria-label="How to navigate">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2 1.9-2 3.5"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>
+</button>
+<div class="tips-panel" id="tips-panel">
+  <div class="tips-panel-title">How to navigate</div>
+  <div class="tips-row"><span class="tips-key">Tap anywhere</span><span>Reveal next detail on this slide</span></div>
+  <div class="tips-row"><span class="tips-key">Arrow button</span><span>Top right — reveals details, then moves to next slide</span></div>
+  <div class="tips-row"><span class="tips-key">↓ / Scroll</span><span>Next slide</span></div>
+  <div class="tips-row"><span class="tips-key">↑ / Scroll up</span><span>Previous slide</span></div>
+  <div class="tips-row"><span class="tips-key">← →</span><span>Hide / reveal detail (keyboard)</span></div>
+  <div class="tips-row"><span class="tips-key">Home / End</span><span>Jump to first / last slide</span></div>
+</div>
+
+<button class="notif-btn" id="notif-btn" onclick="toggleNotif()" aria-label="Notifications">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+</button>
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-panel-title">Notification</div>
+  <div class="notif-panel-body" id="notif-panel-body">No notifications yet.</div>
+</div>
+
+<button class="next-arrow-btn" id="next-arrow" onclick="advance()" aria-label="Next">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+</button>
+<div class="nextarrow-hint" id="nextarrow-hint">Tap here to move through the presentation →</div>
+
+<script>
+/* ===== Utils ===== */
+function haptic(type){ if(!navigator.vibrate) return; try{ if(type==='light') navigator.vibrate(8); else if(type==='medium') navigator.vibrate(18); else if(type==='success') navigator.vibrate([10,6,20]); }catch(e){} }
+function fmtPeso(n){ const abs=Math.abs(Math.round(n)); return (n<0?'-':'')+'₱'+abs.toLocaleString('en-PH'); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+
+/* ===== Slide nav engine ===== */
+const TOTAL = 13;
+let current = 0;
+const track = document.getElementById('track');
+const stage = document.getElementById('stage');
+const entered = new Set();
+stage.setAttribute('tabindex','0');
+stage.style.outline='none';
+window.addEventListener('load', ()=>{ stage.focus(); });
+stage.addEventListener('click',(e)=>{ if(['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName)) return; stage.focus(); });
+
+function layout(){
+  const h = stage.clientHeight;
+  document.querySelectorAll('.slide').forEach(s=>{ s.style.height = h+'px'; });
+  track.style.transition='none';
+  track.style.transform = `translateY(-${current*h}px)`;
+  void track.offsetWidth;
+  track.style.transition='';
+}
+window.addEventListener('resize', layout);
+function updateChrome(){ document.getElementById('topline-fill').style.width = (((current+1)/TOTAL)*100)+'%'; }
+let closingUnlocked = false;
+let navLocked = false;
+function goTo(i){
+  if(nextStepsModalOpen){
+    clearTimeout(window._nextStepsAutoCloseTimer);
+    document.getElementById('problem-modal').classList.remove('open');
+    currentProblemCard = null; nextStepsModalOpen = false; closingUnlocked = true;
+  }
+  i = Math.max(0, Math.min(TOTAL-1,i));
+  if(i===TOTAL-1 && !closingUnlocked) i = TOTAL-2;
+  if(i===current) return;
+  current = i;
+  const h = stage.clientHeight;
+  track.style.transform = `translateY(-${current*h}px)`;
+  updateChrome();
+  onEnter(current);
+  if(current===10) updateImpact();
+  syncNextArrow();
+}
+function nextSlide(){ haptic('light'); goTo(current+1); }
+function prevSlide(){ haptic('light'); goTo(current-1); }
+function goToImpact(){ haptic('medium'); goTo(10); }
+
+let wheelLock=false;
+stage.addEventListener('wheel',(e)=>{ e.preventDefault(); if(wheelLock) return; if(Math.abs(e.deltaY)<12) return; wheelLock=true; if(e.deltaY>0) nextSlide(); else prevSlide(); setTimeout(()=>wheelLock=false,780); },{passive:false});
+let touchStartY=0, touchLock=false;
+stage.addEventListener('touchstart',(e)=>{ touchStartY=e.touches[0].clientY; },{passive:true});
+stage.addEventListener('touchend',(e)=>{ if(touchLock) return; const dy=touchStartY-e.changedTouches[0].clientY; if(Math.abs(dy)<46) return; touchLock=true; if(dy>0) nextSlide(); else prevSlide(); setTimeout(()=>touchLock=false,780); },{passive:true});
+document.addEventListener('keydown',(e)=>{
+  if(navLocked) return;
+  if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+  if(e.key==='ArrowDown'||e.key==='PageDown'){ e.preventDefault(); nextSlide(); }
+  else if(e.key==='ArrowUp'||e.key==='PageUp'){ e.preventDefault(); prevSlide(); }
+  else if(e.key==='ArrowRight'){ e.preventDefault(); stepComponent(1); }
+  else if(e.key==='ArrowLeft'){ e.preventDefault(); stepComponent(-1); }
+  else if(e.key==='Home'){ e.preventDefault(); goTo(0); }
+  else if(e.key==='End'){ e.preventDefault(); goTo(TOTAL-1); }
+  syncNextArrow();
+});
+
+/* ===== Char reveal engine ===== */
+function buildChars(el,text,opts){
+  opts=opts||{}; const speed=opts.speed||20, dur=opts.dur||420;
+  el.classList.remove('shown'); el.innerHTML='';
+  const words=text.split(' '); let i=0;
+  words.forEach((word,wi)=>{
+    const wordSpan=document.createElement('span'); wordSpan.style.display='inline-block';
+    for(let c=0;c<word.length;c++){
+      const span=document.createElement('span'); span.className='char';
+      span.style.transitionDuration=dur+'ms'; span.style.transitionDelay=(i*speed)+'ms'; span.textContent=word[c];
+      wordSpan.appendChild(span); i++;
+    }
+    el.appendChild(wordSpan);
+    if(wi<words.length-1){
+      const spaceSpan=document.createElement('span'); spaceSpan.className='char';
+      spaceSpan.style.transitionDuration=dur+'ms'; spaceSpan.style.transitionDelay=(i*speed)+'ms'; spaceSpan.textContent='\u00A0';
+      el.appendChild(spaceSpan); i++;
+    }
+  });
+  el.dataset.revealDur = Math.max(0,(i-1)*speed+dur);
+  return i;
+}
+function revealChars(el,text,opts){
+  opts=opts||{}; const speed=opts.speed||20, dur=opts.dur||420;
+  const count=buildChars(el,text,opts);
+  void el.offsetWidth;
+  requestAnimationFrame(()=>{ el.classList.add('shown'); });
+  const total=(count-1)*speed+dur;
+  if(opts.cb) setTimeout(opts.cb,total);
+}
+let revealLock=false;
+function revealBuilt(el){
+  if(!el) return;
+  const dur=parseInt(el.dataset.revealDur||'420',10);
+  revealLock=true; void el.offsetWidth;
+  requestAnimationFrame(()=>{ el.classList.add('shown'); });
+  setTimeout(()=>{ revealLock=false; },dur);
+}
+function hideBuilt(el){ if(!el) return; el.classList.add('hiding'); el.classList.remove('shown'); setTimeout(()=>{ el.classList.remove('hiding'); },200); }
+
+/* ===== Slide 0: Reality ===== */
+let realitySteps=0, realityClickEnabled=false;
+function initRealitySlide(){
+  const headingText=document.getElementById('reality-heading-text');
+  if(!headingText) return;
+  const ledeEl=document.getElementById('reality-lede-text');
+  const itWorksEl=document.getElementById('reality-itworks-text');
+  const untilEl=document.getElementById('reality-untilbusy-text');
+  if(ledeEl) buildChars(ledeEl,"Most PMs already know the answer — it just isn't pretty.",{speed:20,dur:420});
+  buildChars(itWorksEl,'It works.',{speed:26,dur:420});
+  buildChars(untilEl,'Until three trades hit the same floor.',{speed:20,dur:420});
+  haptic('light');
+  revealChars(headingText,'How does your project actually run today?',{speed:20,dur:420,cb:function(){ realityClickEnabled=true; }});
+}
+stage.addEventListener('click', function(e){
+  if(revealLock) return;
+  if(current!==0 || !realityClickEnabled) return;
+  if(e.target.closest('.problem-card')) return;
+  if(realitySteps>=9) return;
+  realitySteps++;
+  if(realitySteps===1){ document.querySelector('.slide[data-idx="0"] .reveal-item[data-step="1"]').classList.add('shown'); revealBuilt(document.getElementById('reality-lede-text')); }
+  else if(realitySteps<=8){
+    const item=document.querySelector(`.slide[data-idx="0"] .reveal-item[data-step="${realitySteps}"]`);
+    if(item) item.classList.add('shown');
+    if(realitySteps===8){ haptic('light'); revealBuilt(document.getElementById('reality-itworks-text')); }
+  } else if(realitySteps===9){ haptic('light'); revealBuilt(document.getElementById('reality-untilbusy-text')); }
+});
+
+/* ===== Slide 1: Engine (developer analog) ===== */
+let devSteps=0, devClickEnabled=false;
+function initDeveloperSlide(){
+  const headingText=document.getElementById('dev-heading-text');
+  if(!headingText) return;
+  const lede1El=document.getElementById('dev-lede1-text');
+  const notSpreadEl=document.getElementById('dev-notspread-text');
+  const watchesEl=document.getElementById('dev-watchesyou-text');
+  if(lede1El) buildChars(lede1El,'We started with a simple bet: construction PMs deserved software that actually watched the project for them — not twelve spreadsheets to reconcile.',{speed:20,dur:420});
+  if(notSpreadEl) buildChars(notSpreadEl,'Not another spreadsheet.',{speed:24,dur:420});
+  if(watchesEl) buildChars(watchesEl,'Something that watches, for you.',{speed:20,dur:420});
+  haptic('light');
+  revealChars(headingText,'Built for PMs who want clarity.',{speed:20,dur:420,cb:function(){ devClickEnabled=true; }});
+}
+stage.addEventListener('click', function(e){
+  if(revealLock) return;
+  if(current!==1 || !devClickEnabled) return;
+  if(e.target.closest('.product-card')) return;
+  if(devSteps>=4) return;
+  devSteps++;
+  haptic('light');
+  if(devSteps===1) revealBuilt(document.getElementById('dev-lede1-text'));
+  else if(devSteps<=3){ const item=document.querySelector(`.slide[data-idx="1"] .reveal-item[data-step="${devSteps}"]`); if(item) item.classList.add('shown'); }
+  else if(devSteps===4){
+    const item=document.querySelector(`.slide[data-idx="1"] .reveal-item[data-step="4"]`); if(item) item.classList.add('shown');
+    revealBuilt(document.getElementById('dev-notspread-text'));
+    setTimeout(()=>revealBuilt(document.getElementById('dev-watchesyou-text')), 550);
+  }
+});
+
+/* ===== Generic progressive-reveal slides (2,3,4,5,6,9) ===== */
+const GENERIC = {
+  2:{max:2, headingId:'schedule-heading-text', heading:'Every trade, every floor, one Gantt.', ledeId:'schedule-lede-text', lede:"ARTIFIELD reads every schedule file you import and builds a Building → Trade → Task Gantt, complete with SPI, clash detection, and named baselines."},
+  3:{max:2, headingId:'finance-heading-text', heading:'Know CPI before the closeout meeting.', ledeId:'finance-lede-text', lede:"ARTIFIELD's EVM engine computes CPI, EAC, and VAC live, per building — no waiting for the books to close to find out you're over budget."},
+  4:{max:2, headingId:'materials-heading-text', heading:'Never idle a crew on a stockout.', ledeId:'materials-lede-text', lede:"Days-of-supply is checked against lead time per SKU, per building — a shortage risk surfaces weeks before the crew is standing idle."},
+  5:{max:2, headingId:'conf-heading-text', heading:'Trust the number, not just the chart.', ledeId:'conf-lede-text', lede:"Every extracted record carries a confidence tag and a source row reference — so a low-confidence number is never mistaken for a verified one."},
+  6:{max:2, headingId:'vex-heading-text', heading:'Meet Vex AI.', ledeId:'vex-lede-text', lede:"Vex AI is the extraction layer underneath ARTIFIELD — reading any construction document and standardizing it into one trustworthy schema."},
+  8:{max:5, headingId:'compare-heading-text', heading:'The same week, run two different ways.'},
+  9:{max:2, headingId:'pricing-heading-text', heading:'Straightforward, from day one.', ledeId:'pricing-lede-text', lede:"One license fee to get running — priced for a single estimator or a full project team. No hidden tiers."},
+  11:{max:2, headingId:'talk-heading-text', heading:"Let's set this up before your next pour.", ledeId:'talk-lede-text', lede:"Tell us about your project and we'll walk you through ARTIFIELD live, using your own schedule or cost data."}
+};
+let genericSteps={2:0,3:0,4:0,5:0,6:0,8:0,9:0,11:0};
+let genericClickEnabled={2:false,3:false,4:false,5:false,6:false,8:false,9:false,11:false};
+function initGenericSlide(idx){
+  const cfg=GENERIC[idx]; if(!cfg) return;
+  const headingText=document.getElementById(cfg.headingId);
+  if(!headingText) return;
+  if(cfg.ledeId){ const ledeEl=document.getElementById(cfg.ledeId); if(ledeEl) buildChars(ledeEl,cfg.lede,{speed:20,dur:420}); }
+  haptic('light');
+  revealChars(headingText,cfg.heading,{speed:20,dur:420,cb:function(){ genericClickEnabled[idx]=true; }});
+}
+function stepGeneric(idx,dir){
+  if(revealLock) return;
+  const cfg=GENERIC[idx]; if(!cfg||!genericClickEnabled[idx]) return;
+  if(dir>0){
+    if(genericSteps[idx]>=cfg.max) return;
+    genericSteps[idx]++; haptic('light');
+    const s=genericSteps[idx];
+    document.querySelectorAll(`.slide[data-idx="${idx}"] .reveal-item[data-step="${s}"]`).forEach(item=>item.classList.add('shown'));
+    document.querySelectorAll(`.slide[data-idx="${idx}"] .compare-row[data-step="${s}"]`).forEach(item=>item.classList.add('shown'));
+    if(cfg.ledeId && s===1) revealBuilt(document.getElementById(cfg.ledeId));
+  } else {
+    if(genericSteps[idx]<=0) return;
+    const s=genericSteps[idx];
+    document.querySelectorAll(`.slide[data-idx="${idx}"] .reveal-item[data-step="${s}"]`).forEach(item=>item.classList.remove('shown'));
+    document.querySelectorAll(`.slide[data-idx="${idx}"] .compare-row[data-step="${s}"]`).forEach(item=>item.classList.remove('shown'));
+    if(cfg.ledeId && s===1) hideBuilt(document.getElementById(cfg.ledeId));
+    genericSteps[idx]--; haptic('light');
+  }
+}
+stage.addEventListener('click', function(e){
+  const idx=current;
+  if(idx===7){
+    if(togetherClickEnabled && !e.target.closest('.vex-node')) togetherForwardTrigger();
+    return;
+  }
+  if(GENERIC[idx] && genericClickEnabled[idx]){
+    if(e.target.closest('.problem-card')||e.target.closest('input')||e.target.closest('textarea')||e.target.closest('button')||e.target.closest('.chip')||e.target.closest('.feat-item-modal')) return;
+    stepGeneric(idx,1);
+  }
+});
+
+/* ===== Slide 7: Working Together ===== */
+let togetherSteps=0, togetherClickEnabled=false;
+const TOGETHER_MAX=6;
+function initTogetherSlide(){
+  const headingText=document.getElementById('together-heading-text');
+  if(!headingText) return;
+  const ledeEl=document.getElementById('together-lede-text');
+  if(ledeEl) buildChars(ledeEl,"No tool works in isolation — a document upload shows up as a cost flag and a schedule update within minutes, not at month-end.",{speed:20,dur:420});
+  haptic('light');
+  revealChars(headingText,'A file goes in. A decision comes out.',{speed:20,dur:420,cb:function(){ togetherClickEnabled=true; }});
+}
+function revealVexResult(){
+  const panel=document.getElementById('vex-result-panel'); if(!panel) return;
+  panel.classList.add('shown');
+  const ring=document.getElementById('vex-result-ring'), numEl=document.getElementById('vex-result-num');
+  const circumference=339.3, target=94, offset=circumference-circumference*(target/100);
+  requestAnimationFrame(()=>{ if(ring) ring.style.strokeDashoffset=offset; });
+  if(numEl){ let start=performance.now(); function step(t){ const p=Math.min(1,(t-start)/1000); const eased=1-Math.pow(1-p,3); numEl.textContent=Math.round(target*eased)+'%'; if(p<1) requestAnimationFrame(step); } requestAnimationFrame(step); }
+  haptic('success');
+}
+function hideVexResult(){
+  const panel=document.getElementById('vex-result-panel'); if(!panel) return;
+  panel.classList.remove('shown');
+  const ring=document.getElementById('vex-result-ring'); if(ring) ring.style.strokeDashoffset='339.3';
+  const numEl=document.getElementById('vex-result-num'); if(numEl) numEl.textContent='0%';
+}
+function stepTogether(dir){
+  if(revealLock||!togetherClickEnabled) return;
+  const flow=document.querySelector('.slide[data-idx="7"] .vex-flow');
+  const nodes=flow?Array.from(flow.querySelectorAll('.vex-node')):[];
+  const connectors=flow?Array.from(flow.querySelectorAll('.vex-connector')):[];
+  const toResultConn=document.getElementById('vex-connector-toresult');
+  if(dir>0){
+    if(togetherSteps>=TOGETHER_MAX) return;
+    togetherSteps++; haptic('light');
+    if(togetherSteps===1){ document.querySelector('.slide[data-idx="7"] .reveal-item[data-step="1"]').classList.add('shown'); revealBuilt(document.getElementById('together-lede-text')); }
+    else if(togetherSteps===2){ document.querySelectorAll('.slide[data-idx="7"] .reveal-item[data-step="2"]').forEach(it=>it.classList.add('shown')); if(nodes[0]) nodes[0].classList.add('vn-show'); }
+    else if(togetherSteps>=3 && togetherSteps<=5){
+      const connIdx=togetherSteps-3, conn=connectors[connIdx], nextNode=nodes[connIdx+1];
+      haptic('medium');
+      if(conn){ conn.classList.add('vn-show','pulsing'); setTimeout(()=>{ conn.classList.remove('pulsing'); },1100); }
+      if(nextNode) nextNode.classList.add('vn-show');
+    } else if(togetherSteps===6){
+      if(toResultConn){ toResultConn.classList.add('vn-show','pulsing'); setTimeout(()=>{ toResultConn.classList.remove('pulsing'); },1100); }
+      revealVexResult();
+    }
+  } else {
+    if(togetherSteps<=0) return;
+    haptic('light');
+    if(togetherSteps===1){ hideBuilt(document.getElementById('together-lede-text')); document.querySelector('.slide[data-idx="7"] .reveal-item[data-step="1"]').classList.remove('shown'); }
+    else if(togetherSteps===2){ document.querySelectorAll('.slide[data-idx="7"] .reveal-item[data-step="2"]').forEach(it=>it.classList.remove('shown')); if(nodes[0]) nodes[0].classList.remove('vn-show'); }
+    else if(togetherSteps>=3 && togetherSteps<=5){ const connIdx=togetherSteps-3, conn=connectors[connIdx], nextNode=nodes[connIdx+1]; if(conn) conn.classList.remove('vn-show','pulsing'); if(nextNode) nextNode.classList.remove('vn-show'); }
+    else if(togetherSteps===6){ if(toResultConn) toResultConn.classList.remove('vn-show','pulsing'); hideVexResult(); }
+    togetherSteps--;
+  }
+}
+let togetherClickTimer=null;
+function togetherForwardTrigger(){
+  if(togetherClickTimer){ clearTimeout(togetherClickTimer); togetherClickTimer=null; togetherDoubleTapAction(); }
+  else { togetherClickTimer=setTimeout(()=>{ togetherClickTimer=null; stepTogether(1); },320); }
+}
+function togetherDoubleTapAction(){
+  if(!togetherClickEnabled) return;
+  const flow=document.querySelector('.slide[data-idx="7"] .vex-flow'); if(!flow) return;
+  const nodes=Array.from(flow.querySelectorAll('.vex-node'));
+  let nodeIdx=-1;
+  if(togetherSteps===2) nodeIdx=0; else if(togetherSteps===3) nodeIdx=1; else if(togetherSteps===4) nodeIdx=2; else if(togetherSteps>=5) nodeIdx=3;
+  if(nodeIdx===-1) return;
+  const el=nodes[nodeIdx]; if(el) el.click();
+}
+function vexNodeTap(el,title,sub,detail,targetSlide,targetLabel){
+  const modal=document.getElementById('problem-modal');
+  if(currentProblemCard===el && modal.classList.contains('open')){ closeProblemModal(); return; }
+  haptic('medium');
+  openProductModal(el,title,sub,detail,targetSlide,targetLabel);
+}
+
+/* ===== stepComponent dispatcher (arrow-key + arrow-button reveal) ===== */
+function stepComponent(dir){
+  if(revealLock) return;
+  if(current===0){ stepReality(dir); return; }
+  if(current===1){ stepDev(dir); return; }
+  if(current===7){ if(dir>0) togetherForwardTrigger(); else stepTogether(-1); return; }
+  stepGeneric(current,dir);
+}
+function stepReality(dir){
+  if(dir>0 && realitySteps<9 && realityClickEnabled){
+    realitySteps++;
+    if(realitySteps===1){ document.querySelector('.slide[data-idx="0"] .reveal-item[data-step="1"]').classList.add('shown'); revealBuilt(document.getElementById('reality-lede-text')); }
+    else if(realitySteps<=8){ const item=document.querySelector(`.slide[data-idx="0"] .reveal-item[data-step="${realitySteps}"]`); if(item) item.classList.add('shown'); if(realitySteps===8){ haptic('light'); revealBuilt(document.getElementById('reality-itworks-text')); } }
+    else if(realitySteps===9){ haptic('light'); revealBuilt(document.getElementById('reality-untilbusy-text')); }
+  } else if(dir<0 && realitySteps>0){
+    realitySteps--;
+    if(realitySteps===8) hideBuilt(document.getElementById('reality-untilbusy-text'));
+    else if(realitySteps===0){ hideBuilt(document.getElementById('reality-lede-text')); document.querySelector('.slide[data-idx="0"] .reveal-item[data-step="1"]').classList.remove('shown'); }
+    else if(realitySteps<8){ hideBuilt(document.getElementById('reality-itworks-text')); const item=document.querySelector(`.slide[data-idx="0"] .reveal-item[data-step="${realitySteps+1}"]`); if(item) item.classList.remove('shown'); }
+    haptic('light');
+  }
+}
+function stepDev(dir){
+  if(dir>0 && devSteps<4 && devClickEnabled){
+    devSteps++; haptic('light');
+    if(devSteps===1) revealBuilt(document.getElementById('dev-lede1-text'));
+    else if(devSteps<=3){ const item=document.querySelector(`.slide[data-idx="1"] .reveal-item[data-step="${devSteps}"]`); if(item) item.classList.add('shown'); }
+    else if(devSteps===4){ const item=document.querySelector(`.slide[data-idx="1"] .reveal-item[data-step="4"]`); if(item) item.classList.add('shown'); revealBuilt(document.getElementById('dev-notspread-text')); setTimeout(()=>revealBuilt(document.getElementById('dev-watchesyou-text')),550); }
+  } else if(dir<0 && devSteps>0){
+    if(devSteps===4){ hideBuilt(document.getElementById('dev-notspread-text')); hideBuilt(document.getElementById('dev-watchesyou-text')); const item=document.querySelector(`.slide[data-idx="1"] .reveal-item[data-step="4"]`); if(item) item.classList.remove('shown'); }
+    else if(devSteps===1) hideBuilt(document.getElementById('dev-lede1-text'));
+    else { const item=document.querySelector(`.slide[data-idx="1"] .reveal-item[data-step="${devSteps}"]`); if(item) item.classList.remove('shown'); }
+    devSteps--; haptic('light');
+  }
+}
+
+/* ===== Enter-slide dispatcher ===== */
+function onEnter(i){
+  if(entered.has(i)) return;
+  entered.add(i);
+  if(i===10){ updateImpact(); revealChars(document.getElementById('impact-heading-text'),'See it against your own numbers.',{speed:20,dur:420}); }
+  if(i===0) initRealitySlide();
+  if(i===1) initDeveloperSlide();
+  if(GENERIC[i]) initGenericSlide(i);
+  if(i===7) initTogetherSlide();
+  if(i===11) showPrivacyBadgeHint();
+}
+
+/* ===== Problem / product modal ===== */
+let currentProblemCard=null, nextStepsModalOpen=false;
+function getIconAnchorRect(cardEl){ const icon=cardEl.querySelector?cardEl.querySelector('.icon-tile'):null; return icon?icon.getBoundingClientRect():cardEl.getBoundingClientRect(); }
+function resetModalExtras(){
+  const costEl=document.getElementById('problem-modal-cost'), solutionEl=document.getElementById('problem-modal-solution'), ctaEl=document.getElementById('problem-modal-cta');
+  costEl.style.display='none'; costEl.textContent=''; costEl.className='problem-modal-cost';
+  solutionEl.style.display='none'; solutionEl.innerHTML='';
+  ctaEl.style.display='none'; ctaEl.textContent=''; ctaEl.onclick=null;
+  nextStepsModalOpen=false;
+}
+function openProblemModal(cardEl){
+  const modal=document.getElementById('problem-modal');
+  if(currentProblemCard===cardEl && modal.classList.contains('open')){ closeProblemModal(); return; }
+  haptic('medium'); currentProblemCard=cardEl; resetModalExtras();
+  const iconSVG=cardEl.querySelector('.icon-tile svg'), title=cardEl.querySelector('.pc-title'), body=cardEl.querySelector('.problem-detail-inner');
+  document.getElementById('problem-modal-icon').innerHTML = iconSVG?iconSVG.outerHTML:'';
+  document.getElementById('problem-modal-title').textContent = title?title.textContent:'';
+  document.getElementById('problem-modal-sub').textContent = '';
+  document.getElementById('problem-modal-body').textContent = body?body.textContent:'';
+  const cost=cardEl.dataset.cost, costType=cardEl.dataset.costType||'qualitative';
+  if(cost){ const costEl=document.getElementById('problem-modal-cost'); costEl.textContent=cost; costEl.className='problem-modal-cost '+costType; costEl.style.display='inline-flex'; }
+  const solution=cardEl.dataset.solution;
+  if(solution){ const solutionEl=document.getElementById('problem-modal-solution'); solutionEl.innerHTML='<b>How ARTIFIELD solves this</b>'+solution; solutionEl.style.display='block'; }
+  const targetSlide=cardEl.dataset.target, targetLabel=cardEl.dataset.targetLabel;
+  if(targetSlide){ const ctaEl=document.getElementById('problem-modal-cta'); ctaEl.textContent='See '+targetLabel+' →'; ctaEl.style.display='flex'; ctaEl.onclick=function(e){ e.stopPropagation(); closeProblemModal(); goTo(parseInt(targetSlide,10)); }; }
+  modal.classList.add('open');
+  positionProblemModal(cardEl);
+}
+function openProductModal(cardEl,title,sub,detail,targetSlide,targetLabel){
+  const modal=document.getElementById('problem-modal');
+  if(currentProblemCard===cardEl && modal.classList.contains('open')){ closeProblemModal(); return; }
+  haptic('medium'); currentProblemCard=cardEl; resetModalExtras();
+  const iconSVG=cardEl.querySelector('.icon-tile svg'), iconTextEl=cardEl.querySelector('.vex-node-hub-icon-text');
+  const modalIconEl=document.getElementById('problem-modal-icon');
+  if(iconSVG) modalIconEl.innerHTML=iconSVG.outerHTML;
+  else if(iconTextEl) modalIconEl.textContent='VEX';
+  else modalIconEl.innerHTML='';
+  document.getElementById('problem-modal-title').textContent=title||'';
+  document.getElementById('problem-modal-sub').textContent=sub||'';
+  document.getElementById('problem-modal-body').textContent=detail||'';
+  if(targetSlide!==undefined){ const ctaEl=document.getElementById('problem-modal-cta'); ctaEl.textContent='See '+targetLabel+' →'; ctaEl.style.display='flex'; ctaEl.onclick=function(e){ e.stopPropagation(); closeProblemModal(); goTo(parseInt(targetSlide,10)); }; }
+  modal.classList.add('open');
+  positionProblemModal(cardEl);
+}
+function openPrivacyModal(anchorEl){
+  const modal=document.getElementById('problem-modal');
+  if(currentProblemCard===anchorEl && modal.classList.contains('open')){ closeProblemModal(); return; }
+  haptic('medium'); currentProblemCard=anchorEl; resetModalExtras();
+  document.getElementById('problem-modal-icon').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>';
+  document.getElementById('problem-modal-title').textContent='Data Privacy & Security';
+  document.getElementById('problem-modal-sub').textContent='Compliant with RA 10173 — Data Privacy Act of 2012';
+  document.getElementById('problem-modal-body').innerHTML =
+    '<div style="margin-bottom:14px;"><div style="font-weight:700;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(28,28,30,.45);margin-bottom:6px;">What we collect</div><div>Your name, company/project, contact details, and notes from this form — plus, once onboarded, the schedule, cost, and materials data processed through ARTIFIELD.</div></div>' +
+    '<div style="margin-bottom:14px;"><div style="font-weight:700;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(28,28,30,.45);margin-bottom:6px;">Why we collect it</div><div>Solely to respond to your inquiry, provide the walkthrough you requested, and — if you become a client — operate the software you subscribed to. We do not sell or rent your data.</div></div>' +
+    '<div><div style="font-weight:700;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(28,28,30,.45);margin-bottom:6px;">Retention & security</div><div>Inquiry data is kept only as long as needed for follow-up. Project data is encrypted in transit and at rest, with access limited to authorized personnel only.</div></div>';
+  const ctaEl=document.getElementById('problem-modal-cta');
+  ctaEl.textContent='Contact our Data Protection Officer';
+  ctaEl.style.display='flex';
+  ctaEl.onclick=function(e){ e.stopPropagation(); showToast('DPO contact: privacy@ambrozia.ph'); closeProblemModal(); };
+  modal.classList.add('open'); positionProblemModal(anchorEl);
+}
+function openNextStepsModal(anchorEl){
+  const modal=document.getElementById('problem-modal');
+  if(currentProblemCard===anchorEl && modal.classList.contains('open')){ closeProblemModal(); return; }
+  haptic('medium'); currentProblemCard=anchorEl; resetModalExtras(); nextStepsModalOpen=true;
+  document.getElementById('problem-modal-icon').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>';
+  document.getElementById('problem-modal-title').textContent='What happens next';
+  document.getElementById('problem-modal-sub').textContent='From first call to going live';
+  document.getElementById('problem-modal-body').innerHTML =
+    '<div class="problem-modal-steps">' +
+    '<div class="problem-modal-step-row"><div class="problem-modal-step-num">01</div><div class="problem-modal-step-txt">A 20-minute call to understand your buildings, trades, and current tools.</div></div>' +
+    '<div class="problem-modal-step-row"><div class="problem-modal-step-num">02</div><div class="problem-modal-step-txt">A live walkthrough of ARTIFIELD using your own schedule or cost file.</div></div>' +
+    '<div class="problem-modal-step-row"><div class="problem-modal-step-num">03</div><div class="problem-modal-step-txt">Setup and onboarding — most projects are live within a week.</div></div>' +
+    '</div>';
+  modal.classList.add('open'); positionProblemModal(anchorEl);
+  clearTimeout(window._nextStepsAutoCloseTimer);
+  window._nextStepsAutoCloseTimer=setTimeout(()=>{ if(currentProblemCard===anchorEl && modal.classList.contains('open')) closeProblemModal(); },15000);
+}
+function positionProblemModal(cardEl){
+  const modal=document.getElementById('problem-modal'), arrow=document.getElementById('problem-modal-arrow');
+  arrow.style.display='';
+  const iconRect=getIconAnchorRect(cardEl);
+  const vw=window.innerWidth;
+  const mw=modal.offsetWidth||320, mh=modal.offsetHeight||200, gap=16;
+  const anchorX=iconRect.right, anchorY=iconRect.top;
+  let left=anchorX-32; left=Math.max(12,Math.min(vw-mw-12,left));
+  let top=anchorY-gap-mh; top=Math.max(12,top);
+  modal.style.left=left+'px'; modal.style.top=top+'px'; modal.style.transformOrigin='bottom center';
+  arrow.className='problem-modal-arrow side-bottom';
+  let arrowLeft=anchorX-left-8; arrowLeft=Math.max(16,Math.min(mw-24,arrowLeft));
+  arrow.style.left=arrowLeft+'px'; arrow.style.top='';
+}
+function closeProblemModal(){
+  haptic('light'); document.getElementById('problem-modal').classList.remove('open'); currentProblemCard=null;
+  if(nextStepsModalOpen){ nextStepsModalOpen=false; closingUnlocked=true; goTo(11); }
+}
+document.addEventListener('click', function(e){
+  const modal=document.getElementById('problem-modal');
+  if(!modal.classList.contains('open')) return;
+  if(modal.contains(e.target)) return;
+  if(e.target.closest('.problem-card')||e.target.closest('.product-card')||e.target.closest('.feat-item-modal')||e.target.closest('.vex-node')||e.target.closest('.privacy-badge-float')) return;
+  closeProblemModal();
+});
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeProblemModal(); });
+window.addEventListener('resize', function(){ const modal=document.getElementById('problem-modal'); if(modal.classList.contains('open') && currentProblemCard) positionProblemModal(currentProblemCard); });
+
+/* ===== Pricing / chips ===== */
+let selectedPlan='unsure';
+function choosePlan(plan){
+  showToast(`${plan} license selected — let's talk`);
+  selectedPlan = plan==='Solo' ? 'small' : 'medium';
+  setTimeout(()=>{ goTo(11); syncPlanChip(); },260);
+}
+function syncPlanChip(){
+  document.querySelectorAll('.talk-chip-row .chip').forEach(c=>c.classList.remove('active'));
+  const map={small:'chip-small',medium:'chip-medium',unsure:'chip-unsure'};
+  const el=document.getElementById(map[selectedPlan]); if(el) el.classList.add('active');
+}
+function selectPlanChip(key,el){
+  haptic('light');
+  document.querySelectorAll('.talk-chip-row .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active'); selectedPlan=key;
+}
+
+/* ===== Impact calculator ===== */
+let impactDebounceTimer=null;
+function updateImpact(){
+  const revenue=parseInt(document.getElementById('s-revenue').value,10);
+  const hours=parseInt(document.getElementById('s-hours').value,10);
+  const idleDays=parseInt(document.getElementById('s-stockouts').value,10);
+  document.getElementById('v-revenue').textContent=fmtPeso(revenue);
+  document.getElementById('v-hours').textContent=hours;
+  document.getElementById('v-stockouts').textContent=idleDays;
+  clearTimeout(impactDebounceTimer);
+  impactDebounceTimer=setTimeout(function(){
+    const dailyWage=1200; // illustrative construction-crew day-rate basis
+    const laborSavings = hours*4*dailyWage/8;
+    const idleImpactRaw = idleDays * (revenue/30) * 0.5;
+    const idleImpactCap = revenue*0.08;
+    const idleSavings = Math.min(idleImpactRaw, idleImpactCap);
+    const totalSavings = laborSavings + idleSavings;
+    const planCost = selectedPlan==='small' ? 2999 : 6250; // 75000/12
+    const planLabel = selectedPlan==='small' ? 'Solo license cost' : 'Project license cost';
+    const paybackDays = totalSavings>0 ? Math.max(1, Math.round(planCost/(totalSavings/30))) : null;
+    const paybackLabel = paybackDays ? (paybackDays+' day'+(paybackDays===1?'':'s')) : '—';
+    const maxBar = Math.max(planCost, totalSavings, 1);
+    document.getElementById('v-savings').textContent = fmtPeso(totalSavings);
+    document.getElementById('v-hourssaved').textContent = Math.round(hours*4);
+    document.getElementById('v-payback').textContent = paybackLabel;
+    const planLabelEl=document.getElementById('impact-plan-label'); if(planLabelEl) planLabelEl.textContent=planLabel;
+    document.getElementById('bar-cost').style.width = Math.min(100,(planCost/maxBar)*100)+'%';
+    document.getElementById('bar-value').style.width = Math.min(100,(totalSavings/maxBar)*100)+'%';
+  },220);
+}
+
+function toggleSliderInfo(btn){ haptic('light'); const info=btn.closest('.slider-block').querySelector('.slider-info-text'); info.classList.toggle('open'); }
+let lastHapticStep=null;
+['s-revenue','s-hours','s-stockouts'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('input',()=>{ const step=Math.round(parseInt(el.value,10)/10); if(step!==lastHapticStep){ haptic('light'); lastHapticStep=step; } });
+});
+['talk-fullname','talk-bizname'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input',()=>{ el.style.borderColor=''; }); });
+
+/* ===== Let's talk ===== */
+function submitTalk(btn){
+  if(btn.classList.contains('loading')||btn.classList.contains('success')) return;
+  const nameInput=document.getElementById('talk-fullname'), bizInput=document.getElementById('talk-bizname');
+  const nameVal=nameInput?nameInput.value.trim():'', bizVal=bizInput?bizInput.value.trim():'';
+  if(!nameVal||!bizVal){
+    haptic('medium'); let firstEmpty=null;
+    [nameInput,bizInput].forEach(inp=>{ if(inp && !inp.value.trim()){ inp.style.borderColor='#FF5C5C'; if(!firstEmpty) firstEmpty=inp; } });
+    if(firstEmpty) firstEmpty.focus();
+    showToast('Please fill in your name and company/project first.');
+    return;
+  }
+  haptic('medium'); btn.classList.add('loading'); btn.disabled=true;
+  setTimeout(()=>{
+    btn.classList.remove('loading'); btn.classList.add('success'); haptic('success');
+    setTimeout(()=>{ btn.classList.remove('success'); btn.disabled=false; openNextStepsModal(btn); },1400);
+  },900);
+}
+function skipToClosing(){ haptic('light'); closingUnlocked=true; goTo(12); }
+function restartPresentation(){
+  entered.delete(0); realitySteps=0; realityClickEnabled=false;
+  document.querySelectorAll('.slide[data-idx="0"] .reveal-item').forEach(item=>item.classList.remove('shown'));
+  current=12; goTo(0);
+}
+function handleMessageTeamClick(btn){
+  if(btn.classList.contains('loading')||btn.classList.contains('success')) return;
+  haptic('medium'); btn.classList.add('loading');
+  setTimeout(()=>{
+    btn.classList.remove('loading'); btn.classList.add('success'); haptic('success');
+    setTimeout(()=>{ btn.classList.remove('success'); openMessageOverlay(); },1100);
+  },850);
+}
+function openMessageOverlay(){
+  navLocked=true;
+  const overlay=document.getElementById('message-overlay');
+  overlay.classList.remove('hidden');
+  setTimeout(()=>{
+    overlay.classList.add('visible'); haptic('light');
+    const wm=document.getElementById('overlay-wordmark-text'), sub=document.getElementById('overlay-sub-text');
+    if(wm) revealChars(wm,'ARTIFIELD',{speed:26,dur:420});
+    if(sub) setTimeout(()=>{ revealChars(sub,'Present differently.',{speed:22,dur:420}); },260);
+  },350);
+  overlay.onclick=closeMessageOverlay;
+}
+function closeMessageOverlay(){
+  haptic('light'); navLocked=false;
+  const overlay=document.getElementById('message-overlay');
+  overlay.classList.remove('visible');
+  setTimeout(()=>{ overlay.classList.add('hidden'); },200);
+}
+
+/* ===== Tips / notif panels ===== */
+function toggleTips(){ haptic('light'); document.getElementById('tips-panel').classList.toggle('open'); }
+document.addEventListener('click', function(e){ const panel=document.getElementById('tips-panel'); if(panel.classList.contains('open') && !panel.contains(e.target) && !e.target.closest('#tips-btn')) panel.classList.remove('open'); });
+function toggleNotif(){ haptic('light'); document.getElementById('notif-panel').classList.toggle('open'); }
+document.addEventListener('click', function(e){ const panel=document.getElementById('notif-panel'); if(panel.classList.contains('open') && !panel.contains(e.target) && !e.target.closest('#notif-btn')) panel.classList.remove('open'); },true);
+function showPrivacyBadgeHint(){
+  const badge=document.getElementById('privacy-badge-talk'); if(!badge) return;
+  setTimeout(()=>{ badge.classList.add('visible'); },900);
+  setTimeout(()=>{ badge.classList.remove('visible'); },6500);
+}
+
+/* ===== Next arrow ===== */
+function syncNextArrow(){
+  const btn=document.getElementById('next-arrow'); if(!btn) return;
+  let stepsLeft=false;
+  if(current===0) stepsLeft=realitySteps<9;
+  else if(current===1) stepsLeft=devSteps<4;
+  else if(current===7) stepsLeft=togetherSteps<TOGETHER_MAX;
+  else { const cfg=GENERIC[current]; stepsLeft = cfg ? genericSteps[current]<cfg.max : false; }
+  if(current===TOTAL-1 && !stepsLeft) btn.classList.add('hidden'); else btn.classList.remove('hidden');
+}
+function advance(){
+  const hint=document.getElementById('nextarrow-hint'); if(hint) hint.classList.remove('visible');
+  let stepsLeft=false;
+  if(current===0) stepsLeft=realityClickEnabled && realitySteps<9;
+  else if(current===1) stepsLeft=devClickEnabled && devSteps<4;
+  else if(current===7) stepsLeft=togetherClickEnabled && togetherSteps<TOGETHER_MAX;
+  else { const cfg=GENERIC[current]; stepsLeft = !!(cfg && genericClickEnabled[current] && genericSteps[current]<cfg.max); }
+  if(stepsLeft) stepComponent(1); else if(current<TOTAL-1) nextSlide();
+  syncNextArrow();
+}
+document.addEventListener('click', function(){ syncNextArrow(); });
+document.addEventListener('keydown', function(e){ if(['ArrowRight','ArrowLeft','ArrowDown','ArrowUp','PageDown','PageUp','Home','End'].includes(e.key)) syncNextArrow(); });
+
+/* ===== Welcome screen ===== */
+function enterDashboard(){
+  haptic('medium');
+  const ws=document.getElementById('welcome-screen'); if(ws) ws.classList.add('hidden');
+  const vs=document.getElementById('version-static'); if(vs) vs.classList.remove('show');
+  onEnter(0);
+  stage.focus();
+  showNextArrowHint();
+}
+function showNextArrowHint(){
+  const hint=document.getElementById('nextarrow-hint'); if(!hint) return;
+  setTimeout(()=>{ hint.classList.add('visible'); },700);
+  setTimeout(()=>{ hint.classList.remove('visible'); },4200);
+}
+(function revealWelcomeWhenFontsReady(){
+  const inner=document.querySelector('.welcome-inner'); if(!inner) return;
+  let shown=false; function show(){ if(shown) return; shown=true; inner.classList.add('fonts-ready'); }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(show).catch(show); }
+  setTimeout(show,350);
+})();
+
+layout(); updateChrome(); syncNextArrow();
+</script>
+</body>
+</html>
