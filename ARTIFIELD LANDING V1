@@ -1,0 +1,2671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>ArtiField — Know your schedule. Know your real cost. Every day on site.</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;850&family=JetBrains+Mono:wght@500&display=optional');
+:root{
+  --bg:#f4f5f2; --surface:#ffffff; --soft:#edf0ec; --line:#dfe3df; --line-strong:#c7cdc7;
+  --ink:#111513; --muted:#6c746f; --faint:#9aa39c;
+  --accent:#171b18; --accent-hover:#2a2f2b; --accent-soft:#eceeec;
+  --radius:20px;
+  --font:'Inter',ui-sans-serif,system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(17,21,19,.25) transparent}
+html::-webkit-scrollbar{width:8px}
+html::-webkit-scrollbar-track{background:transparent}
+html::-webkit-scrollbar-thumb{background-color:rgba(17,21,19,.22);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+html::-webkit-scrollbar-thumb:hover{background-color:rgba(17,21,19,.38)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;overflow-x:hidden;width:100%}
+header,main{opacity:0;transform:translateY(16px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1);pointer-events:none}
+body.app-ready header,body.app-ready main{opacity:1;transform:translateY(0);pointer-events:auto}
+button,input{font:inherit}
+button{cursor:pointer}
+.shell{max-width:100%;margin:auto;padding:0 clamp(16px,2vw,40px);width:100%}
+.nav{position:relative;height:74px;display:flex;align-items:center;justify-content:space-between}
+.nav-left{display:flex;align-items:center;gap:20px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.03em;font-size:19px}
+.brand .dot{width:9px;height:9px;border-radius:3px;background:var(--accent)}
+.nav-right{display:flex;gap:10px;align-items:center}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.55);backdrop-filter:blur(14px) saturate(180%);-webkit-backdrop-filter:blur(14px) saturate(180%);border-radius:999px;padding:8px 16px;font-size:12.5px;font-weight:650;letter-spacing:.01em;line-height:1;color:var(--ink);box-shadow:0 8px 20px rgba(17,21,19,.1);white-space:nowrap;flex-shrink:0;align-self:center}
+.pill::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--ink);color:#fff;font-size:9px;font-weight:800;flex-shrink:0}
+.btn-nav{border:0;background:var(--ink);color:var(--bg);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:650}
+.btn-nav-ghost{border:1px solid var(--line-strong);background:transparent;color:var(--ink);border-radius:10px;padding:9px 15px;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center}
+.btn-nav-ghost:hover{background:var(--soft)}
+
+.hero{padding:5%;min-height:calc(100vh - 74px);display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;box-sizing:border-box}
+.nav-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+.vex-nav-label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);opacity:0;transition:opacity .6s ease;background:none;border:0;padding:0;font-family:inherit;pointer-events:auto;cursor:pointer}
+.vex-nav-label:hover{color:var(--ink)}
+.vex-nav-label.show{opacity:1}@media(max-width:640px){.nav-center{display:none}}
+.eyebrow{font-size:12.5px;color:var(--accent);font-weight:700;letter-spacing:.01em}
+h1{font-size:clamp(38px,5vw,58px);line-height:1.04;letter-spacing:-.03em;margin:14px 0 20px;max-width:640px}
+.lead{font-size:17px;line-height:1.6;color:var(--muted);max-width:520px}
+.hero-stats{display:flex;gap:26px;margin-top:26px}
+.hero-stat b{display:block;font-size:22px;letter-spacing:-.02em}
+.hero-stat span{font-size:12px;color:var(--faint)}
+
+.hero-edge-nav{display:flex;align-items:center;gap:8px;list-style:none;margin:0;padding:0}
+.edge-item{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:none;border:0;padding:0;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.edge-item svg{width:17px;height:17px;stroke:var(--muted);flex-shrink:0;transition:stroke .2s}
+.edge-item:hover,.edge-item.open{background:none;transform:translateY(-2px)}
+.edge-item:hover svg,.edge-item.open svg{stroke:var(--ink)}
+.edge-tip{position:absolute;left:50%;top:calc(100% + 11px);transform:translateX(-50%) translateY(-6px);white-space:nowrap;background:var(--ink);color:#fff;font-size:12px;font-weight:650;padding:7px 12px;border-radius:9px;box-shadow:0 10px 24px rgba(17,21,19,.18);opacity:0;pointer-events:none;transition:opacity .22s cubic-bezier(.22,1,.36,1),transform .22s cubic-bezier(.22,1,.36,1);z-index:30}
+.edge-tip::after{content:"";position:absolute;left:50%;bottom:100%;transform:translateX(-50%) rotate(45deg);width:8px;height:8px;background:var(--ink)}
+.edge-item:hover .edge-tip,.edge-item.open .edge-tip{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.edge-modal-head{display:flex;align-items:center;gap:14px;margin-bottom:2px}
+.edge-modal-icon{flex-shrink:0;width:44px;height:44px;border-radius:13px;background:var(--soft);display:grid;place-items:center;color:var(--ink)}
+.edge-modal-icon svg{width:22px;height:22px}
+.edge-modal-tagline{font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.3;margin:14px 0 10px}
+.edge-features{display:flex;flex-direction:column;margin-top:4px}
+.edge-feature{display:flex;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
+.edge-feature:first-child{border-top:0}
+.edge-feature-num{font-family:var(--mono);font-size:11px;color:var(--faint);flex-shrink:0;margin-top:2px}
+.edge-feature-body b{display:block;font-size:14px;margin-bottom:2px}
+.edge-feature-body>span{font-size:12.5px;color:var(--muted);line-height:1.5}
+.edge-feature-body ul{margin:8px 0 0;padding-left:16px;font-size:12px;color:var(--muted);line-height:1.7}
+.edge-extra{margin-top:6px;border-top:1px solid var(--line);padding-top:16px}
+.edge-extra-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:650;margin-bottom:8px}
+.edge-flow-block{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}
+.edge-flow-block+.edge-flow-block{margin-top:14px;border-top:0;padding-top:0}
+.edge-flow-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:650;margin-bottom:9px}
+.edge-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12.5px;font-weight:650}
+.edge-flow span:not(.edge-flow-arrow){background:var(--soft);border-radius:999px;padding:5px 11px}
+.edge-flow-arrow{color:var(--faint);font-weight:400}
+.edge-result{margin-top:18px;background:linear-gradient(155deg,#171b18,#2e3430);color:#f4f5f2;border-radius:16px;padding:18px 20px}
+.edge-result-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#aeb7b1;margin-bottom:6px}
+.edge-result-text{font-size:15.5px;font-weight:650;line-height:1.4}
+.edge-modal-cta{margin-top:18px;width:100%;text-align:center}
+
+.hero-card{background:linear-gradient(155deg,#171b18,#2e3430);color:#f4f5f2;border-radius:24px;padding:30px;min-height:280px;display:flex;flex-direction:column;gap:18px;border:1px solid rgba(255,255,255,.08);box-shadow:0 24px 60px rgba(17,21,19,.35)}
+.hero-card .mini{display:flex;align-items:center;gap:7px;color:#8f978f;font-size:11px;font-weight:650;text-transform:uppercase;letter-spacing:.1em}
+.hero-card strong{display:block;font-size:22px;line-height:1.32;letter-spacing:-.02em;font-weight:700;margin-top:2px}
+.hero-card .flow{display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:11.5px;color:#c9cec8;margin-top:4px}
+.hero-card .flow span:not(.flow-arrow){background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.06);border-radius:999px;padding:6px 12px;font-weight:600;letter-spacing:.01em}
+.hero-card .flow .flow-arrow{color:#5c655f;font-size:12px;padding:0 1px}
+.sim-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#f4f5f2;border-radius:11px;padding:12px 16px;font-size:13px;font-weight:650;letter-spacing:.01em;transition:background-color .2s,border-color .2s,transform .2s;width:100%}
+.sim-btn:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.34);transform:translateY(-1px)}
+.sim-cta{display:inline-flex;align-items:center;gap:5px;margin-top:2px;color:#c9cec8;font-size:12.5px;font-weight:650;text-decoration:none;width:max-content;transition:color .2s,gap .2s}
+.sim-cta:hover{color:#f4f5f2;gap:8px}
+.sim-cta-arrow{display:inline-block;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.sim-cta:hover .sim-cta-arrow{transform:translateX(4px)}
+.hero-sub{margin:0;font-size:12.5px;color:#8f978f;line-height:1.55}
+.wf-panel{margin-top:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:14px}
+.wf-panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.wf-panel-title{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#aeb7b1;font-weight:650}
+.wf-badge{font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.12);color:#f4f5f2;padding:3px 8px;border-radius:999px;font-weight:650}
+.wf-stage{display:flex;gap:10px;align-items:flex-start;width:100%;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);border-radius:12px;padding:11px 12px;text-align:left;transition:opacity .35s cubic-bezier(.22,1,.36,1),border-color .35s cubic-bezier(.22,1,.36,1),background-color .35s cubic-bezier(.22,1,.36,1);opacity:.55;color:inherit}
+.wf-stage:hover{opacity:.8;border-color:rgba(255,255,255,.18)}
+.wf-stage.active{opacity:1;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.08)}
+.wf-stage.done{opacity:1;border-color:rgba(255,255,255,.16)}
+.wf-stage-num{flex-shrink:0;font-family:var(--mono);font-size:11px;color:#aeb7b1;margin-top:2px}
+.wf-stage.active .wf-stage-num,.wf-stage.done .wf-stage-num{color:#f4f5f2}
+.wf-stage-body{display:flex;flex-direction:column;gap:2px}
+.wf-stage-body b{font-size:13px;color:#f4f5f2;font-weight:650}
+.wf-stage-body>span:not(.wf-stage-data){font-size:11.5px;color:#aeb7b1;line-height:1.4}
+.wf-stage-data{margin-top:4px;font-family:var(--mono);font-size:12.5px;color:#f4f5f2;min-height:16px;opacity:0;transform:translateY(4px);transition:opacity .45s cubic-bezier(.22,1,.36,1),transform .45s cubic-bezier(.22,1,.36,1)}
+.wf-stage-data.show{opacity:1;transform:translateY(0)}
+.wf-arrow{text-align:center;color:#565f5a;font-size:11px;padding:2px 0}
+.wf-play{margin-top:14px;width:100%;text-align:center}
+.wf-play:disabled{opacity:.5;cursor:not-allowed}
+.wf-launch{margin-top:16px;width:100%;text-align:center}
+.wf-overlay{position:fixed;inset:0;background:rgba(17,21,19,.6);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:999;padding:24px;opacity:0;visibility:hidden;transition:opacity .32s cubic-bezier(.22,1,.36,1),visibility 0s linear .32s}
+.wf-overlay.open{opacity:1;visibility:visible;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
+.wf-modal{background:#171b18;color:#f4f5f2;border-radius:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;padding:26px;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.5);transform:scale(.96) translateY(6px);transition:transform .38s cubic-bezier(.22,1,.36,1);scrollbar-width:none;-ms-overflow-style:none}
+.wf-modal::-webkit-scrollbar{display:none}
+.wf-overlay.open .wf-modal{transform:scale(1) translateY(0)}
+.wf-modal-title{display:block;font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.25;margin:10px 0 2px}
+.wf-modal-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#f4f5f2;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center}
+.wf-modal-close:hover{background:rgba(255,255,255,.14)}
+.progress-wrap{margin:18px 0 0}
+.progress-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:7px}
+.progress{height:5px;background:var(--soft);border-radius:999px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);width:20%;transition:.35s}
+
+.experience{padding:26px 5% 88px;background:#a5a7a5}
+.experience-grid{display:grid;grid-template-columns:250px 1fr;gap:20px}
+.side{background:rgba(255,255,255,.55);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);border:1px solid rgba(255,255,255,.6);border-radius:var(--radius);padding:20px;height:max-content;position:sticky;top:20px;box-shadow:0 12px 34px rgba(17,21,19,.08)}
+.side h3{font-size:12.5px;margin:0 0 15px;color:var(--muted);font-weight:650}
+.step{display:flex;gap:10px;align-items:center;padding:9px 0;color:var(--faint);font-size:13px}
+.dot2{width:24px;height:24px;border:1px solid var(--line-strong);border-radius:50%;display:grid;place-items:center;font-size:11px;background:var(--surface);flex-shrink:0}
+.step.active{color:var(--ink);font-weight:650}.step.active .dot2{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.workspace{background:rgba(255,255,255,.55);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);border:1px solid rgba(255,255,255,.6);border-radius:26px;min-height:600px;padding:clamp(22px,4vw,48px);display:flex;flex-direction:column;box-shadow:0 14px 40px rgba(17,21,19,.09)}
+.workspace-head{display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap}
+.kicker{font-size:12px;color:var(--faint)}
+.workspace h2{font-size:clamp(26px,3.2vw,38px);letter-spacing:-.03em;line-height:1.08;margin:11px 0 12px;max-width:600px}
+.workspace p{color:var(--muted);line-height:1.55;max-width:600px;font-size:14.5px}
+
+.options{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:26px 0}
+.option{border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.6);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(17,21,19,.08);transition:border-color .25s cubic-bezier(.22,1,.36,1),transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1),background-color .25s}
+.option:hover{border-color:var(--line-strong);transform:translateY(-3px);box-shadow:0 14px 32px rgba(17,21,19,.08)}
+.option.open{transform:translateY(-3px);box-shadow:0 14px 32px rgba(17,21,19,.08)}
+.option.selected{border-color:var(--accent);background:var(--accent-soft)}
+.option-toggle{display:flex;align-items:center;gap:13px;width:100%;padding:18px;background:none;border:0;text-align:left;color:inherit}
+.option-icon{flex-shrink:0;width:34px;height:34px;border-radius:10px;background:var(--soft);display:grid;place-items:center;color:var(--ink);transition:background-color .3s cubic-bezier(.22,1,.36,1),color .3s cubic-bezier(.22,1,.36,1),transform .3s cubic-bezier(.22,1,.36,1)}
+.option-icon svg{width:18px;height:18px}
+.option:hover .option-icon,.option.open .option-icon,.option.selected .option-icon{background:var(--ink);color:#fff;transform:scale(1.08) rotate(-4deg)}
+.option-head{flex:1;display:flex;flex-direction:column;gap:2px}
+.option-head b{font-size:14.5px}
+.option-head span{font-size:12.5px;color:var(--muted);line-height:1.4;transition:color .25s}
+.option:hover .option-head span,.option.open .option-head span{color:var(--ink)}
+.option-chevron{flex-shrink:0;font-size:15px;color:var(--faint);transition:transform .3s cubic-bezier(.22,1,.36,1),color .25s}
+.option:hover .option-chevron,.option.open .option-chevron{transform:rotate(90deg);color:var(--ink)}
+.option-detail{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.22,1,.36,1)}
+.option-detail p{margin:0;padding:0 18px 16px 65px;color:var(--muted);font-size:12.5px;line-height:1.5}
+
+.actions{margin-top:auto;display:flex;justify-content:space-between;gap:10px;padding-top:28px;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .35s cubic-bezier(.22,1,.36,1),transform .35s cubic-bezier(.22,1,.36,1)}
+.actions.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:650;font-size:14px}
+.btn-dark{background:var(--ink);color:#fff}.btn-light{background:var(--soft);color:var(--ink)}
+.btn-dark:hover{background:#463832}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.input{width:100%;padding:15px;border:1px solid var(--line-strong);border-radius:13px;outline:none;margin-top:16px;background:var(--surface)}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+.result-form{margin-top:20px;display:flex;flex-direction:column;gap:10px}
+.result-field label{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#aeb7b1;margin-bottom:5px}
+.result-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);color:#f4f5f2;border-radius:9px;padding:10px 12px;font-size:13.5px;outline:none;transition:border-color .2s}
+.result-field input:focus{border-color:rgba(255,255,255,.4)}
+.result-field.invalid input{border-color:#c1554f}
+.result-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.action-buttons{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.btn-secondary{background:transparent;color:#aeb7b1;border:0;padding:9px 0;font-size:13px;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.28)}
+.btn-secondary:hover{color:#f4f5f2;border-color:#f4f5f2}
+.result-back-btn{display:inline-block;margin-top:18px}
+.result-form-label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#aeb7b1;font-weight:650;margin-top:20px;display:block}
+
+.result{margin-top:22px;background:linear-gradient(155deg,#171b18,#2e3430);color:#f4f5f2;border-radius:20px;padding:24px}
+.result small{color:#aeb7b1;text-transform:uppercase;letter-spacing:.08em;font-size:11px}
+.result .headline{font-size:24px;font-weight:700;letter-spacing:-.02em;margin:9px 0 8px;line-height:1.3}
+.result .body{color:#aeb7b1;font-size:13.5px;line-height:1.6}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.metric{background:rgba(255,255,255,.07);border-radius:13px;padding:14px;transition:transform .25s cubic-bezier(.22,1,.36,1),background-color .25s cubic-bezier(.22,1,.36,1);cursor:default}.metric:hover{transform:scale(1.05);background:rgba(255,255,255,.13)}.metric small{display:block;margin-bottom:5px;color:#aeb7b1}.metric b{font-size:14px}
+
+.result-step4{background:linear-gradient(155deg,#171b18,#2e3430)}
+
+.section{padding:70px 5%}
+.section h2{font-size:clamp(28px,3.6vw,44px);letter-spacing:-.03em;line-height:1.06;margin:8px 0 14px}
+.section-intro{color:var(--muted);max-width:600px;line-height:1.6;font-size:15px}
+
+.patterns{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}
+.pattern{background:rgba(255,255,255,.6);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border:1px solid rgba(255,255,255,.6);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(17,21,19,.08);transition:border-color .25s cubic-bezier(.22,1,.36,1),transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1)}
+.pattern:hover{border-color:var(--line-strong);transform:translateY(-3px);box-shadow:0 14px 32px rgba(17,21,19,.08)}
+.pattern.open{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 14px 32px rgba(17,21,19,.1)}
+.pattern-toggle{display:flex;align-items:center;gap:13px;width:100%;padding:20px 22px;background:none;border:0;text-align:left;color:inherit;cursor:default}
+.pattern-icon{flex-shrink:0;width:34px;height:34px;border-radius:10px;background:var(--soft);display:grid;place-items:center;color:var(--ink);transition:background-color .3s cubic-bezier(.22,1,.36,1),color .3s cubic-bezier(.22,1,.36,1),transform .3s cubic-bezier(.22,1,.36,1)}
+.pattern-icon svg{width:18px;height:18px;transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.pattern:hover .pattern-icon,.pattern.open .pattern-icon{background:var(--ink);color:#fff;transform:scale(1.08) rotate(-4deg)}
+.pattern-head{flex:1;display:flex;flex-direction:column;gap:2px}
+.pattern-head b{font-size:14.5px;letter-spacing:-.01em}
+.pattern-head span{font-size:12.5px;color:var(--muted);line-height:1.4;transition:color .25s}
+.pattern:hover .pattern-head span,.pattern.open .pattern-head span{color:var(--ink)}
+.pattern-chevron{flex-shrink:0;font-size:15px;color:var(--faint);transition:transform .3s cubic-bezier(.22,1,.36,1),color .25s}
+.pattern:hover .pattern-chevron,.pattern.open .pattern-chevron{transform:rotate(90deg);color:var(--ink)}
+.pattern-detail{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.22,1,.36,1)}
+.pattern-detail p{margin:0;padding:0 22px 20px 69px;color:var(--muted);font-size:13.5px;line-height:1.55}
+
+.vex-overlay{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(244,245,242,.45);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);opacity:0;visibility:hidden;transition:opacity .4s cubic-bezier(.22,1,.36,1),visibility 0s linear .4s}
+.vex-overlay.open{opacity:1;visibility:visible;transition:opacity .4s cubic-bezier(.22,1,.36,1)}
+.vex-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;width:min(320px,86vw);pointer-events:none;opacity:0;transform:scale(.92);transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1)}
+.vex-overlay.open .vex-wrap{opacity:1;transform:scale(1)}
+.vex-overlay.open .vex-wrap.vex-genie{opacity:0;transform:translate(var(--vex-tx,0),var(--vex-ty,0)) scale(.04);transition:transform .6s cubic-bezier(.5,0,.5,1),opacity .5s ease .15s}
+.vex-bubble{pointer-events:auto;background:rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);border:1px solid rgba(255,255,255,.75);border-radius:16px;padding:11px 15px;box-shadow:0 10px 28px rgba(17,21,19,.16);opacity:0;transform-origin:center;transform:scale(.4) translateY(6px);transition:opacity .32s cubic-bezier(.34,1.56,.64,1),transform .32s cubic-bezier(.34,1.56,.64,1);max-width:100%;text-align:center}
+.vex-bubble.show{opacity:1;transform:scale(1) translateY(0)}
+.vex-bubble.hide{opacity:0;transform:scale(.85) translateY(4px);transition:opacity .4s ease,transform .4s ease}
+.vex-bubble-tag{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:5px}
+.vex-bubble-tag svg{width:11px;height:11px;color:var(--ink)}
+.vex-bubble-tag span{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.vex-bubble-text{font-size:14px;line-height:1.45;color:var(--ink);font-weight:500;min-height:1.1em}
+.vex-bubble-text .vex-caret{display:inline-block;width:2px;height:14px;background:var(--ink);margin-left:1px;vertical-align:-2px;animation:vexCaretBlink .8s step-end infinite}
+.vex-bubble-sub{background:rgba(255,255,255,.7)}
+.vex-bubble-sub .vex-bubble-text{font-size:13px;color:var(--muted);font-weight:500}
+.vex-typing{pointer-events:auto;background:rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);border:1px solid rgba(255,255,255,.75);border-radius:16px;padding:12px 16px;box-shadow:0 10px 28px rgba(17,21,19,.16);display:flex;align-items:center;gap:4px;opacity:0;transform-origin:center;transform:scale(.4) translateY(6px);transition:opacity .32s cubic-bezier(.34,1.56,.64,1),transform .32s cubic-bezier(.34,1.56,.64,1)}
+.vex-typing.show{opacity:1;transform:scale(1) translateY(0)}
+.vex-typing.hide{opacity:0;transform:scale(.85) translateY(4px);transition:opacity .25s ease,transform .25s ease}
+.vex-typing-dot{width:6px;height:6px;border-radius:50%;background:var(--faint);animation:vexTypingBounce 1.1s ease-in-out infinite}
+.vex-typing-dot:nth-child(2){animation-delay:.15s}
+.vex-typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes vexTypingBounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+@keyframes vexCaretBlink{0%,50%{opacity:1}51%,100%{opacity:0}}
+#artilineDevWrap{display:flex;justify-content:center}
+.artiline-strip{display:flex;justify-content:center}
+.artiline-strip a{display:inline-flex;align-items:center;gap:5px;font-size:10.4px;font-weight:600;color:#8f978f;text-decoration:none;letter-spacing:.01em;transition:color .2s}
+.artiline-strip a svg{width:13px;height:13px;stroke:currentColor}
+.artiline-strip a:hover{color:#f4f5f2}
+.footer-mega{padding:56px 0 30px;display:flex;flex-direction:column;gap:34px}
+
+#footerMega{background:#000;border-radius:0;padding:44px clamp(20px,4vw,56px) 30px;margin-top:10px}
+#footerMega .footer-tagline{color:#aeb7b1}
+#footerMega .footer-newsletter label{color:#aeb7b1}
+#footerMega .footer-newsletter-row input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);color:#f4f5f2}
+#footerMega .footer-newsletter-row input::placeholder{color:#7a8279}
+#footerMega .footer-newsletter-row input:focus{border-color:rgba(255,255,255,.4);box-shadow:0 0 0 4px rgba(255,255,255,.08);transform:scale(1.015)}
+#footerMega .footer-newsletter-row button{background:#f4f5f2;color:#111513}
+#footerMega .footer-newsletter-row button:hover{background:#d8dbd7}
+#footerMega .footer-col h4{color:#8b948f}
+#footerMega .footer-col a,#footerMega .footer-col button.footer-link{color:#c9cec8}
+#footerMega .footer-col a:hover,#footerMega .footer-col button.footer-link:hover{color:#fff}
+#footerMega .footer-col:last-child{background:none;border:0;border-radius:0;padding:0;margin-bottom:0}
+#footerMega .footer-col:last-child h4{color:#8b948f}
+#footerMega .footer-col:last-child a,#footerMega .footer-col:last-child button.footer-link{color:#c9cec8}
+#footerMega .footer-col:last-child a:hover,#footerMega .footer-col:last-child button.footer-link:hover{color:#fff}
+#footerMega .footer-contact{color:#aeb7b1}
+#footerMega .footer-contact a{color:#aeb7b1}
+#footerMega .footer-contact a:hover{color:#fff}
+#footerMega .footer-region{color:#7a8279}
+#footerMega .footer-bottom{color:#7a8279}
+#footerMega .footer-bottom{background:none}
+#footerMega .footer-legal-row a{color:#7a8279}
+#footerMega .footer-legal-row button.footer-link-inline{color:#7a8279}
+#footerMega .footer-legal-row a:hover,#footerMega .footer-legal-row button.footer-link-inline:hover{color:#fff}
+.footer-top{display:flex;flex-direction:column;gap:32px;padding-bottom:34px}
+.footer-about{max-width:320px;text-align:left}
+.footer-about .brand{margin-bottom:14px}
+.footer-tagline{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 20px}
+.footer-newsletter label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:650;margin-bottom:8px}
+.footer-newsletter-row{display:flex;gap:8px;max-width:360px}
+.footer-newsletter-row input{flex:1;min-width:0;padding:11px 13px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);outline:none;font-size:13px;transition:border-color .25s,box-shadow .25s,transform .25s cubic-bezier(.34,1.56,.64,1)}
+.footer-newsletter-row input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);transform:scale(1.015)}
+.footer-newsletter-row button{border:0;background:var(--ink);color:#fff;border-radius:10px;padding:0 16px;font-size:13px;font-weight:650;white-space:nowrap}
+.footer-newsletter-row button:hover{background:var(--accent-hover)}
+
+.footer-columns{display:flex;flex-direction:column;gap:28px;text-align:left}
+.footer-col h4{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:650;margin:0 0 14px}
+.footer-col a{display:block;color:var(--muted);font-size:13.5px;text-decoration:none;margin-bottom:11px;transition:color .15s}
+.footer-col a:hover{color:var(--ink)}
+.footer-col:last-child{background:linear-gradient(155deg,#171b18,#2e3430);border-radius:16px;padding:20px 22px;margin-bottom:-6px}
+.footer-col:last-child h4{color:#aeb7b1}
+.footer-col:last-child a{color:#d8dbd7}
+.footer-col:last-child a:hover{color:#fff}
+.footer-col:last-child a:last-child{margin-bottom:0}
+
+.footer-contact-text{display:flex;flex-direction:column;gap:8px}
+.footer-contact a{color:var(--muted);text-decoration:none;font-weight:600}
+.footer-contact a:hover{color:var(--ink)}
+.footer-region{color:var(--faint)}
+
+.footer-bottom{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;color:var(--faint);font-size:12px;background:none;border:0;padding:0}
+.footer-bottom-left{text-align:left}
+.footer-bottom-center{display:flex;justify-content:center}
+.footer-bottom-right{display:flex;justify-content:flex-end}
+@media(max-width:560px){
+  .footer-bottom{grid-template-columns:1fr;text-align:center;gap:14px}
+  .footer-bottom-right{justify-content:center}
+}
+
+.footer-col button.footer-link{display:block;width:fit-content;text-align:left;background:none;border:0;padding:0;margin-bottom:11px;color:var(--muted);font-size:13.5px;cursor:pointer;transition:color .15s}
+.footer-col button.footer-link:hover{color:var(--ink)}
+.footer-col:last-child button.footer-link{color:#d8dbd7}
+.footer-col:last-child button.footer-link:hover{color:#fff}
+.footer-col:last-child button.footer-link:last-child{margin-bottom:0}
+.footer-legal-row button.footer-link-inline{display:inline;background:none;border:0;padding:0;margin:0;width:auto;color:var(--faint);font-size:inherit;font-weight:500;letter-spacing:.01em;cursor:pointer}
+.footer-legal-row button.footer-link-inline:hover{color:var(--ink)}
+
+.footer-social{display:flex;align-items:center;gap:16px}
+.footer-social a{position:relative;display:inline-flex;align-items:center;justify-content:center;width:auto;height:auto;color:#c9cec8;transition:color .2s,transform .2s}
+.footer-social a:hover{color:#fff;transform:translateY(-1px)}
+.footer-social a svg{width:17px;height:17px;stroke:currentColor;fill:none}
+.social-tip{position:absolute;left:50%;bottom:calc(100% + 11px);transform:translateX(-50%) translateY(6px) scale(.85);white-space:nowrap;background:#f4f5f2;color:#111513;font-size:11px;font-weight:650;padding:6px 11px;border-radius:8px;box-shadow:0 10px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .22s cubic-bezier(.34,1.56,.64,1),transform .22s cubic-bezier(.34,1.56,.64,1);z-index:30}
+.social-tip::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%) rotate(45deg);width:7px;height:7px;background:#f4f5f2}
+.footer-social a:hover .social-tip{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+@media(max-width:640px){.social-tip{display:none}}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:12px 17px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:translate(-50%,0)}
+.btn-spinner{display:inline-block;width:13px;height:13px;border:2px solid #ffffff55;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:-2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.fl-overlay{position:fixed;inset:0;background:rgba(17,21,19,.6);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:999;padding:24px;opacity:0;visibility:hidden;transition:opacity .32s cubic-bezier(.22,1,.36,1),visibility 0s linear .32s}
+.fl-overlay.open{opacity:1;visibility:visible;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
+.fl-modal{background:var(--surface);color:var(--ink);border-radius:22px;max-width:560px;width:100%;max-height:86vh;overflow-y:auto;padding:30px;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.35);transform:scale(.96) translateY(6px);transition:transform .38s cubic-bezier(.22,1,.36,1);scrollbar-width:none;-ms-overflow-style:none}
+.fl-modal::-webkit-scrollbar{display:none}
+.fl-overlay.open .fl-modal{transform:scale(1) translateY(0)}
+.fl-modal-close{position:absolute;top:18px;right:18px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center}
+.fl-modal-close:hover{background:var(--soft)}
+.fl-kicker{font-size:12px;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;font-weight:650}
+.fl-title{font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.25;margin:10px 0 8px;max-width:460px}
+.fl-intro{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 20px}
+.fl-back{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--muted);font-size:13px;font-weight:600;padding:0;margin-top:20px;cursor:pointer}
+.fl-back:hover{color:var(--ink)}
+
+.fl-steps{display:flex;flex-direction:column}
+.fl-step{display:flex;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
+.fl-step:first-child{border-top:0}
+.fl-step-num{font-family:var(--mono);font-size:11px;color:var(--faint);flex-shrink:0;margin-top:2px}
+.fl-step-body b{display:block;font-size:14.5px;margin-bottom:3px}
+.fl-step-body span{font-size:13px;color:var(--muted);line-height:1.5}
+
+.fl-plans{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fl-plan{border:1px solid var(--line);border-radius:16px;padding:18px}
+.fl-plan.featured{border-color:var(--accent);background:var(--accent-soft)}
+.fl-plan b{display:block;font-size:15px;margin-bottom:4px}
+.fl-plan .price{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.fl-plan ul{margin:0;padding-left:18px;font-size:12.5px;color:var(--muted);line-height:1.7}
+
+.fl-timeline{display:flex;flex-direction:column;gap:16px}
+.fl-timeline-item{border-left:2px solid var(--line-strong);padding-left:14px;position:relative}
+.fl-timeline-item::before{content:"";position:absolute;left:-5px;top:3px;width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.fl-timeline-item .fl-date{font-family:var(--mono);font-size:11px;color:var(--faint);display:block;margin-bottom:4px}
+.fl-timeline-item b{display:block;font-size:13.5px;margin-bottom:2px}
+.fl-timeline-item span{font-size:12.5px;color:var(--muted)}
+
+.fl-columns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fl-col h4{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin:0 0 10px}
+.fl-col ul{margin:0;padding-left:16px;font-size:12.5px;color:var(--muted);line-height:1.8}
+
+.fl-faq-item{border-top:1px solid var(--line);padding:14px 0}
+.fl-faq-item:first-child{border-top:0}
+.fl-faq-item b{display:block;font-size:13.5px;margin-bottom:5px}
+.fl-faq-item span{font-size:13px;color:var(--muted);line-height:1.55}
+
+.fl-list{margin:0;padding-left:18px;font-size:13.5px;color:var(--muted);line-height:1.9}
+.fl-note{margin-top:18px;font-size:12px;color:var(--faint);border-top:1px solid var(--line);padding-top:14px}
+
+.cd-ceo{margin-top:22px;background:linear-gradient(155deg,#171b18,#2e3430);color:#f4f5f2;border-radius:18px;padding:22px 24px}
+.cd-ceo-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#aeb7b1;font-weight:650;margin-bottom:10px}
+.cd-ceo-quote{font-size:17px;font-weight:650;line-height:1.45;letter-spacing:-.01em;margin:0 0 14px}
+.cd-ceo-sig{display:flex;align-items:center;gap:10px}
+.cd-ceo-avatar{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;font-size:12px;font-weight:700;flex-shrink:0}
+.cd-ceo-sig-text b{display:block;font-size:12.5px}
+.cd-ceo-sig-text span{font-size:11.5px;color:#aeb7b1}
+
+#artilineLeadForm{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+#artilineLeadForm .cd-field label{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:5px}
+#artilineLeadForm .cd-field input{width:100%;border:1px solid var(--line-strong);border-radius:9px;padding:10px 12px;font-size:13.5px;outline:none;background:var(--surface);color:var(--ink);transition:border-color .2s}
+#artilineLeadForm .cd-field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+#artilineLeadForm .cd-field.invalid input{border-color:#c1554f}
+#artilineLeadForm .cd-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){#artilineLeadForm .cd-row{grid-template-columns:1fr}}
+
+@media(max-width:560px){.fl-plans{grid-template-columns:1fr}.fl-columns{grid-template-columns:1fr}}
+
+@media(max-width:800px){
+ .hero{grid-template-columns:1fr;padding-top:40px}.experience-grid{grid-template-columns:1fr}.side{position:static}.options,.patterns{grid-template-columns:1fr}.result-grid{grid-template-columns:1fr}.nav-right .pill{display:none}.hero-stats{gap:18px}
+ .pattern-detail p{padding-left:22px}
+ .option-detail p{padding-left:18px}
+}
+@media(max-width:640px){
+ .hero-edge-nav{gap:5px}
+ .edge-item{width:32px;height:32px;border-radius:10px}
+ .edge-item svg{width:15px;height:15px}
+}
+@media(max-width:420px){
+ .nav-left{gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+ .nav-left::-webkit-scrollbar{display:none}
+ .brand{flex-shrink:0}
+ .hero-edge-nav{flex-shrink:0}
+}
+@media(max-width:480px){
+ .shell{padding:0 14px}
+ h1{font-size:clamp(30px,9vw,38px)}
+ .hero-stats{flex-wrap:wrap;gap:14px;row-gap:10px}
+ .hero-card,.workspace{padding:18px}
+ .wf-overlay,.fl-overlay{padding:12px}
+ .wf-modal,.fl-modal{padding:20px;max-width:100%}
+ .result-grid{gap:8px}
+ .footer-col:last-child{padding:16px}
+ .nav{padding:0}
+}
+
+.oa-hint-anchor{position:relative;display:inline-flex;align-items:center}
+.oa-hint{position:absolute;right:calc(100% + 10px);top:50%;white-space:nowrap;background:var(--ink);color:#fff;font-size:12px;font-weight:650;padding:7px 12px;border-radius:9px;box-shadow:0 10px 24px rgba(17,21,19,.18);opacity:0;transform-origin:center right;transform:translateY(-50%) scale(.25);pointer-events:none;transition:opacity .55s cubic-bezier(.34,1.56,.64,1),transform .55s cubic-bezier(.34,1.56,.64,1);z-index:10}
+.oa-hint.show{opacity:1;transform:translateY(-50%) scale(1)}
+.oa-hint.hide{opacity:0;transform:translateY(-50%) scale(.15);transition:opacity .4s cubic-bezier(.5,0,.5,1),transform .4s cubic-bezier(.5,0,.5,1)}
+@media(max-width:640px){.oa-hint{display:none}}
+
+/* === START: DESKTOP-ONLY NOTICE === */
+.dx-overlay{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(17,21,19,.45);backdrop-filter:blur(10px) saturate(180%);-webkit-backdrop-filter:blur(10px) saturate(180%);opacity:0;visibility:hidden;transition:opacity .4s cubic-bezier(.22,1,.36,1),visibility 0s linear .4s}
+.dx-overlay.open{opacity:1;visibility:visible;transition:opacity .4s cubic-bezier(.22,1,.36,1)}
+.dx-card{background:linear-gradient(155deg,#171b18,#2e3430);color:#f4f5f2;border-radius:22px;max-width:380px;width:100%;padding:28px 26px;box-shadow:0 30px 80px rgba(0,0,0,.4);transform:scale(.95) translateY(8px);transition:transform .4s cubic-bezier(.22,1,.36,1)}
+.dx-overlay.open .dx-card{transform:scale(1) translateY(0)}
+.dx-icon{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);display:grid;place-items:center;margin-bottom:14px}
+.dx-icon svg{width:19px;height:19px;stroke:#f4f5f2}
+.dx-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#aeb7b1;font-weight:650;margin-bottom:8px}
+.dx-title{font-size:18px;font-weight:700;letter-spacing:-.02em;line-height:1.35;margin:0 0 8px}
+.dx-body{font-size:13px;color:#c9cec8;line-height:1.6;margin:0 0 20px}
+.dx-btn{border:0;border-radius:11px;padding:11px 16px;font-weight:650;font-size:13.5px;background:#f4f5f2;color:#111513;width:100%;transition:background-color .2s}
+.dx-btn:hover{background:#d8dbd7}
+/* === END: DESKTOP-ONLY NOTICE === */
+
+/* === START: ARTIWHEEL SPIN-TO-WIN OVERLAY === */
+.aw-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(17,21,19,.35);opacity:0;visibility:hidden;transition:opacity .4s cubic-bezier(.22,1,.36,1),visibility 0s linear .4s}
+.aw-overlay.open{opacity:1;visibility:visible;transition:opacity .4s cubic-bezier(.22,1,.36,1)}
+body.aw-open header,body.aw-open main,body.aw-open footer{filter:blur(7px);transition:filter .4s ease;pointer-events:none}
+.aw-card{position:relative;background:linear-gradient(155deg,#171b18,#2e3430);color:#f4f5f2;border-radius:26px;max-width:400px;width:100%;padding:30px 26px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.45);transform:scale(.94) translateY(8px);transition:transform .4s cubic-bezier(.22,1,.36,1)}
+.aw-overlay.open .aw-card{transform:scale(1) translateY(0)}
+.aw-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#f4f5f2;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.aw-close:hover{background:rgba(255,255,255,.14)}
+.aw-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#aeb7b1;font-weight:650}
+.aw-title{font-size:22px;font-weight:700;letter-spacing:-.02em;margin:10px 0 6px}
+.aw-sub{font-size:13px;color:#aeb7b1;line-height:1.5;margin-bottom:20px}
+.aw-wheel-wrap{position:relative;width:220px;height:220px;margin:0 auto 22px}
+.aw-wheel{width:100%;height:100%;border-radius:50%;position:relative;transition:transform 4.2s cubic-bezier(.15,.8,.2,1);border:4px solid rgba(255,255,255,.12);overflow:hidden}
+.aw-pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:16px solid #f4f5f2;z-index:2}
+.aw-segment{position:absolute;color:#f4f5f2;pointer-events:none}
+.aw-segment svg{width:16px;height:16px;display:block;stroke:#f4f5f2}
+.aw-spin-btn{width:100%;border:0;border-radius:12px;padding:13px 16px;font-weight:650;font-size:14px;background:#f4f5f2;color:#111513;cursor:pointer}
+.aw-spin-btn:hover{background:#d8dbd7}
+.aw-spin-btn:disabled{opacity:.5;cursor:not-allowed}
+.aw-form{display:flex;flex-direction:column;gap:9px;margin-top:16px;text-align:left}
+.aw-form label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#aeb7b1}
+.aw-form input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);color:#f4f5f2;border-radius:9px;padding:10px 12px;font-size:13.5px;outline:none}
+.aw-form input:focus{border-color:rgba(255,255,255,.4)}
+.aw-claim-btn{margin-top:6px;border:0;border-radius:12px;padding:13px 16px;font-weight:650;font-size:14px;background:#f4f5f2;color:#111513;width:100%;cursor:pointer}
+.aw-claim-btn:hover{background:#d8dbd7}
+.aw-claim-btn:disabled{opacity:.5;cursor:not-allowed}
+.aw-step1,.aw-step2,.aw-step3{display:none}
+.aw-step1.show,.aw-step2.show,.aw-step3.show{display:block}
+.aw-prize{font-size:20px;font-weight:700;margin:6px 0 4px}
+/* === END: ARTIWHEEL SPIN-TO-WIN OVERLAY === */
+
+/* === START: ARTILINE DECK (mini presentation) === */
+#adOverlay{position:fixed;inset:0;z-index:9990;background:#101310;opacity:0;visibility:hidden;transition:opacity .4s cubic-bezier(.22,1,.36,1),visibility .4s}
+#adOverlay.open{opacity:1;visibility:visible}
+.ad-topline{position:fixed;top:0;left:0;right:0;height:2px;background:rgba(255,255,255,.08);z-index:10}
+.ad-topline-fill{height:100%;width:20%;background:#f4f5f2;transition:width .6s cubic-bezier(.16,1,.3,1)}
+.ad-close,.ad-next{position:fixed;top:20px;z-index:20;width:44px;height:44px;border-radius:50%;border:0;background:rgba(244,245,242,.1);color:#f4f5f2;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);transition:background .2s,transform .2s}
+.ad-close{left:20px}
+.ad-next{right:20px}
+.ad-close:hover,.ad-next:hover{background:rgba(244,245,242,.18);transform:translateY(-1px)}
+.ad-close svg,.ad-next svg{width:18px;height:18px}
+.ad-stage{position:fixed;inset:0;overflow:hidden}
+.ad-track{position:absolute;top:0;left:0;width:100%;transition:transform .75s cubic-bezier(.16,1,.3,1)}
+.ad-slide{height:100vh;width:100%;display:flex;align-items:center;box-sizing:border-box;color:#f4f5f2}
+.ad-inner{max-width:760px;width:100%;margin:0 auto;padding:32px 48px}
+.ad-eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(244,245,242,.5);margin-bottom:14px;text-transform:uppercase}
+.ad-h{font-weight:800;letter-spacing:-.02em;line-height:1.08;font-size:clamp(26px,4vw,42px);margin:0 0 16px}
+.ad-char .adc{display:inline-block;opacity:0;transform:translateY(8px);transition:opacity .4s cubic-bezier(.16,1,.3,1),transform .4s cubic-bezier(.16,1,.3,1)}
+.ad-char.shown .adc{opacity:1;transform:translateY(0)}
+.ad-lede{font-size:15.5px;line-height:1.6;color:rgba(244,245,242,.65);max-width:520px;margin:0 0 24px;opacity:0;transform:translateY(10px);transition:opacity .5s cubic-bezier(.16,1,.3,1) .3s,transform .5s cubic-bezier(.16,1,.3,1) .3s}
+.ad-slide.ad-active .ad-lede{opacity:1;transform:translateY(0)}
+.ad-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;opacity:0;transform:translateY(10px);transition:opacity .5s cubic-bezier(.16,1,.3,1) .45s,transform .5s cubic-bezier(.16,1,.3,1) .45s}
+.ad-slide.ad-active .ad-grid{opacity:1;transform:translateY(0)}
+.ad-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:15px 16px}
+.ad-card b{display:block;font-size:13.5px;margin-bottom:3px}
+.ad-card span{font-size:12.5px;color:rgba(244,245,242,.55);line-height:1.5}
+.ad-flow{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;opacity:0;transform:translateY(10px);transition:opacity .5s cubic-bezier(.16,1,.3,1) .4s,transform .5s cubic-bezier(.16,1,.3,1) .4s}
+.ad-slide.ad-active .ad-flow{opacity:1;transform:translateY(0)}
+.ad-flow span{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:9px 16px;font-size:13px;font-weight:600}
+.ad-ceo{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:24px 26px;opacity:0;transform:translateY(10px);transition:opacity .5s cubic-bezier(.16,1,.3,1) .4s,transform .5s cubic-bezier(.16,1,.3,1) .4s}
+.ad-slide.ad-active .ad-ceo{opacity:1;transform:translateY(0)}
+.ad-ceo-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:rgba(244,245,242,.45);margin-bottom:10px}
+.ad-ceo-quote{font-size:17px;font-weight:650;line-height:1.45;margin:0 0 14px}
+.ad-ceo-sig{display:flex;align-items:center;gap:10px}
+.ad-ceo-avatar{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;font-size:12px;font-weight:700;flex-shrink:0}
+.ad-ceo-sig-text b{display:block;font-size:12.5px}
+.ad-ceo-sig-text span{font-size:11.5px;color:rgba(244,245,242,.5)}
+.ad-form{display:flex;flex-direction:column;gap:10px;margin-top:20px;max-width:420px;opacity:0;transform:translateY(10px);transition:opacity .5s cubic-bezier(.16,1,.3,1) .4s,transform .5s cubic-bezier(.16,1,.3,1) .4s}
+.ad-slide.ad-active .ad-form{opacity:1;transform:translateY(0)}
+.ad-field label{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:rgba(244,245,242,.45);margin-bottom:5px}
+.ad-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#f4f5f2;border-radius:10px;padding:12px 13px;font-size:13.5px;outline:none;transition:border-color .2s}
+.ad-field input:focus{border-color:rgba(255,255,255,.4)}
+.ad-field.invalid input{border-color:#c1554f}
+.ad-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ad-submit{margin-top:6px;border:0;border-radius:12px;padding:13px 20px;font-weight:700;font-size:14px;background:#f4f5f2;color:#111513;display:inline-flex;align-items:center;gap:8px;transition:transform .15s,background .2s}
+.ad-submit:hover{background:#d8dbd7}
+.ad-submit:active{transform:scale(.97)}
+.ad-spinner{width:13px;height:13px;border:2px solid rgba(17,21,19,.25);border-top-color:#111513;border-radius:50%;animation:adspin .7s linear infinite}
+@keyframes adspin{to{transform:rotate(360deg)}}
+.ad-success{display:none;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:20px 22px;margin-top:20px}
+.ad-success b{display:block;font-size:15px;margin-bottom:4px}
+.ad-success span{font-size:13px;color:rgba(244,245,242,.6);line-height:1.5}
+.ad-dots{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:20}
+.ad-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.22);transition:background .3s,transform .3s;cursor:pointer}
+.ad-dot.active{background:#f4f5f2;transform:scale(1.3)}
+@media(max-width:680px){
+  .ad-inner{padding:24px 22px}
+  .ad-grid{grid-template-columns:1fr}
+  .ad-row2{grid-template-columns:1fr}
+  .ad-close,.ad-next{width:40px;height:40px;top:14px}
+  .ad-close{left:14px}
+  .ad-next{right:14px}
+}
+/* === END: ARTILINE DECK === */
+
+/* === START: ARTILINE DECK — POLISH PASS === */
+.ad-stage:before{content:"";position:absolute;top:-20%;left:-10%;width:60%;height:60%;background:radial-gradient(circle,rgba(255,255,255,.05),transparent 70%);pointer-events:none;animation:adGlowDrift 14s ease-in-out infinite alternate}
+.ad-stage:after{content:"";position:absolute;bottom:-25%;right:-15%;width:65%;height:65%;background:radial-gradient(circle,rgba(255,255,255,.04),transparent 70%);pointer-events:none;animation:adGlowDrift 18s ease-in-out infinite alternate-reverse}
+@keyframes adGlowDrift{from{transform:translate(0,0)}to{transform:translate(4%,6%)}}
+.ad-close:active,.ad-next:active{transform:scale(.88)}
+.ad-eyebrow{opacity:0;transform:translateY(6px);transition:opacity .4s cubic-bezier(.16,1,.3,1),transform .4s cubic-bezier(.16,1,.3,1)}
+.ad-slide.ad-active .ad-eyebrow{opacity:1;transform:translateY(0)}
+.ad-card{display:flex;gap:12px;align-items:flex-start;transition:transform .3s cubic-bezier(.34,1.56,.64,1),background-color .2s,border-color .2s}
+.ad-card:hover{transform:translateY(-3px);background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16)}
+.ad-card-icon{flex-shrink:0;width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center}
+.ad-card-icon svg{width:16px;height:16px}
+.ad-card-body b,.ad-card-body span{display:block}
+.ad-flow span{transition:transform .25s cubic-bezier(.34,1.56,.64,1),background-color .2s;cursor:default}
+.ad-flow span:hover{transform:translateY(-2px) scale(1.04);background:rgba(255,255,255,.14)}
+.ad-hint{position:fixed;top:74px;right:20px;z-index:20;background:rgba(244,245,242,.12);backdrop-filter:blur(10px);color:#f4f5f2;font-size:11.5px;font-weight:650;padding:8px 13px;border-radius:10px;white-space:nowrap;opacity:0;transform:translateY(-4px) scale(.94);pointer-events:none;transition:opacity .4s cubic-bezier(.16,1,.3,1),transform .4s cubic-bezier(.16,1,.3,1)}
+.ad-hint.show{opacity:1;transform:translateY(0) scale(1)}
+.ad-dot{transition:background-color .3s,transform .35s cubic-bezier(.34,1.56,.64,1)}
+.ad-dot.active{animation:adDotPop .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes adDotPop{0%{transform:scale(1)}50%{transform:scale(1.6)}100%{transform:scale(1.3)}}
+.ad-success{text-align:center;opacity:0;transform:translateY(8px);transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1)}
+.ad-success.show{opacity:1;transform:translateY(0)}
+.ad-success-check{width:56px;height:56px;margin:0 auto 16px}
+.ad-success-check circle{fill:none;stroke:rgba(244,245,242,.2);stroke-width:2}
+.ad-success-check .ring{stroke:#f4f5f2;stroke-dasharray:151;stroke-dashoffset:151;transition:stroke-dashoffset .6s cubic-bezier(.16,1,.3,1)}
+.ad-success-check .tick{fill:none;stroke:#f4f5f2;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .35s cubic-bezier(.16,1,.3,1) .5s}
+.ad-success.show .ring{stroke-dashoffset:0}
+.ad-success.show .tick{stroke-dashoffset:0}
+.ad-submit:disabled{opacity:.6;pointer-events:none}
+@media(max-width:680px){.ad-hint{top:64px;right:14px;font-size:10.5px}}
+/* === END: ARTILINE DECK POLISH PASS === */
+</style>
+</head>
+<body>
+<div class="dx-overlay" id="dxOverlay">
+  <div class="dx-card">
+    <div class="dx-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div>
+    <div class="dx-eyebrow">Heads up</div>
+    <div class="dx-title">Built for desktop, for now.</div>
+    <p class="dx-body">This experience is optimized for larger screens while we finish the mobile version. For the full experience, we recommend viewing on a desktop or laptop for now.</p>
+    <button type="button" class="dx-btn" id="dxContinue">Got it, continue →</button>
+  </div>
+</div>
+<!-- === START: ARTIWHEEL SPIN-TO-WIN MODAL === -->
+<div class="aw-overlay" id="awOverlay">
+  <div class="aw-card">
+    <button type="button" class="aw-close" id="awClose" aria-label="Close">✕</button>
+
+    <div class="aw-step1 show" id="awStep1">
+      <div class="aw-eyebrow">ArtiLine presents</div>
+      <div class="aw-title">Spin the ArtiWheel 🎁</div>
+      <div class="aw-sub">One spin, one prize — on us. See what you get.</div>
+      <div class="aw-wheel-wrap">
+        <div class="aw-pointer"></div>
+        <div class="aw-wheel" id="awWheel"></div>
+      </div>
+      <button type="button" class="aw-spin-btn" id="awSpinBtn">Spin Now →</button>
+    </div>
+
+    <div class="aw-step2" id="awStep2">
+      <div class="aw-eyebrow">You won</div>
+      <div class="aw-prize" id="awPrizeText">—</div>
+      <div class="aw-sub">Claim it in a few seconds — we just need where to send it.</div>
+      <div class="aw-form">
+        <label>Full name</label>
+        <input type="text" id="awName" placeholder="Juan Dela Cruz">
+        <label>Email or mobile number</label>
+        <input type="text" id="awContact" placeholder="you@company.com / 09XX XXX XXXX">
+      </div>
+      <button type="button" class="aw-claim-btn" id="awClaimBtn">Claim Prize</button>
+    </div>
+
+    <div class="aw-step3" id="awStep3">
+      <div class="aw-eyebrow">Confirmed</div>
+      <div class="aw-title">Thanks — check your inbox 🎉</div>
+      <div class="aw-sub">Your prize is on its way. While you're here, feel free to explore what ArtiField can do for your project.</div>
+    </div>
+  </div>
+</div>
+<!-- === END: ARTIWHEEL SPIN-TO-WIN MODAL === -->
+<header class="shell nav">
+  <div class="nav-left">
+    <div class="brand"><span class="dot"></span>ArtiField</div>
+    <nav class="hero-edge-nav" aria-label="ArtiField modules">
+      <button type="button" class="edge-item" data-key="schedule">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5 12 12l9-4.5L12 3Z"/><path d="M3 7.5V16.5L12 21l9-4.5V7.5"/><path d="M12 12v9"/></svg>
+        <span class="edge-tip">Consolidated Schedule</span>
+      </button>
+      <button type="button" class="edge-item" data-key="costing">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M9.5 9.8c0-1.3 1.1-2.1 2.5-2.1s2.5.8 2.5 1.9c0 2.6-5 1.4-5 3.9 0 1.1 1.1 1.9 2.5 1.9s2.5-.8 2.5-2"/></svg>
+        <span class="edge-tip">EVM Costing</span>
+      </button>
+      <button type="button" class="edge-item" data-key="clashes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><line x1="12" y1="9" x2="12" y2="13.5"/><circle cx="12" cy="16.6" r="0.6" fill="currentColor" stroke="none"/></svg>
+        <span class="edge-tip">Clash &amp; Sequence Detection</span>
+      </button>
+    </nav>
+  </div>
+  <div class="nav-center" id="navCenter"><button type="button" class="vex-nav-label show" id="vexNavLabel">VEX AI</button></div>
+  <div class="nav-right">
+    <div class="oa-hint-anchor">
+      <div class="oa-hint" id="oaHint">Whenever you're ready</div>
+      <button type="button" class="btn-nav-ghost" id="openApp">Open App ↗</button>
+    </div>
+    <button class="btn-nav" id="jump">See if it fits →</button>
+  </div>
+</header>
+
+<div class="vex-overlay" id="vexOverlay">
+  <div class="vex-wrap" id="vexWrap" aria-live="polite"></div>
+</div>
+
+<main>
+<section class="shell hero">
+  <div>
+    <div class="eyebrow">Schedule, cost &amp; supply intelligence for construction sites</div>
+    <h1>Know your schedule. Know your real cost. Every single day on site.</h1>
+    <div class="lead">Trade spreadsheets and static Gantt charts tell you what was planned last month. ArtiField tells you what's happening on site right now — and what it's actually costing you.</div>
+    <div class="hero-stats">
+      <div class="hero-stat"><b>1</b><span>consolidated schedule ledger</span></div>
+      <div class="hero-stat"><b>0</b><span>spreadsheet reconciliations</span></div>
+      <div class="hero-stat"><b>EVM</b><span>auto-recalculated cost forecast</span></div>
+    </div>
+  </div>
+  <div class="hero-card">
+    <div class="mini">See it in action</div>
+    <strong>Watch a schedule update move through the ArtiField workflow.</strong>
+    <div class="flow"><span>Import Data</span><span class="flow-arrow">→</span><span>Master Ledger</span><span class="flow-arrow">→</span><span>Clash Check</span><span class="flow-arrow">→</span><span>Reports</span></div>
+    <button type="button" class="sim-btn wf-launch" id="wfLaunch">Play workflow ↻</button>
+    <a class="sim-cta" href="#experience">See if it fits your project →</a>
+  </div>
+
+  <div class="wf-overlay" id="wfOverlay">
+    <div class="wf-modal">
+      <button type="button" class="wf-modal-close" id="wfClose" aria-label="Close">✕</button>
+      <div class="mini">See it in action</div>
+      <strong class="wf-modal-title">From one schedule import to an updated risk picture.</strong>
+      <p class="hero-sub">Watch what happens when an updated trade schedule comes in.</p>
+
+      <div class="wf-panel">
+        <div class="wf-panel-head">
+          <span class="wf-panel-title">Sample workflow</span>
+          <span class="wf-badge">Demo data</span>
+        </div>
+
+        <button type="button" class="wf-stage" id="wfStage1">
+          <span class="wf-stage-num">01</span>
+          <span class="wf-stage-body">
+            <b>Import Data</b>
+            <span>Trade schedule file imported</span>
+            <span class="wf-stage-data" id="wfData1">—</span>
+          </span>
+        </button>
+        <div class="wf-arrow">↓</div>
+
+        <button type="button" class="wf-stage" id="wfStage2">
+          <span class="wf-stage-num">02</span>
+          <span class="wf-stage-body">
+            <b>Master Ledger</b>
+            <span>Tasks merged, revisions tracked</span>
+            <span class="wf-stage-data" id="wfData2">—</span>
+          </span>
+        </button>
+        <div class="wf-arrow">↓</div>
+
+        <button type="button" class="wf-stage" id="wfStage3">
+          <span class="wf-stage-num">03</span>
+          <span class="wf-stage-body">
+            <b>Clash &amp; Sequence Check</b>
+            <span>Space/time conflicts scored automatically</span>
+            <span class="wf-stage-data" id="wfData3">—</span>
+          </span>
+        </button>
+        <div class="wf-arrow">↓</div>
+
+        <button type="button" class="wf-stage" id="wfStage4">
+          <span class="wf-stage-num">04</span>
+          <span class="wf-stage-body">
+            <b>Reports</b>
+            <span>S-curve, SPI &amp; EAC reflect the update</span>
+            <span class="wf-stage-data" id="wfData4">—</span>
+          </span>
+        </button>
+      </div>
+
+      <button type="button" class="sim-btn wf-play" id="wfPlay">Play workflow ↻</button>
+      <a class="sim-cta" href="#experience">See if it fits your project <span class="sim-cta-arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="shell experience" id="experience">
+  <div class="experience-grid">
+    <aside class="side">
+      <h3>QUICK FIT CHECK</h3>
+      <div class="step active"><span class="dot2">01</span>Your project</div>
+      <div class="step"><span class="dot2">02</span>Your challenge</div>
+      <div class="step"><span class="dot2">03</span>Your scale</div>
+      <div class="step"><span class="dot2">04</span>Your fit</div>
+      <div class="step"><span class="dot2">05</span>Next step</div>
+      <div class="progress-wrap"><div class="progress-top"><span>Progress</span><span id="progressText">1 / 5</span></div><div class="progress"><i id="bar"></i></div></div>
+    </aside>
+
+    <section class="workspace" id="workspace">
+      <div class="workspace-head">
+        <div>
+          <div class="kicker">FIT CHECK</div>
+          <h2 id="question">What kind of construction work do you run?</h2>
+          <p id="sub">This takes about two minutes. We'll show you exactly which parts of ArtiField solve your specific problem — no generic pitch.</p>
+        </div>
+        <div class="pill">No signup needed</div>
+      </div>
+      <div id="body"></div>
+      <div class="actions" id="actionsBar">
+        <button class="btn btn-light" id="back" disabled>Back</button>
+        <button class="btn btn-dark" id="next" disabled>Continue</button>
+      </div>
+    </section>
+  </div>
+</section>
+
+<section class="section">
+<div class="shell">
+  <div class="eyebrow">Why project teams stop trusting the spreadsheet</div>
+  <h2>Every part of your project, actually connected.</h2>
+  <p class="section-intro">ArtiField isn't a Gantt chart with prettier colors. Every schedule import, cost entry, clash, and site update becomes a record on one connected project ledger — so the numbers you report are the numbers that actually happened.</p>
+
+  <div class="patterns" id="patternsWrap">
+    <article class="pattern">
+      <button type="button" class="pattern-toggle">
+        <span class="pattern-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="14" y2="6"/><line x1="4" y1="12" x2="19" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg></span>
+        <span class="pattern-head"><b>Consolidated Gantt</b><span>Every trade, one timeline</span></span>
+        <span class="pattern-chevron">›</span>
+      </button>
+      <div class="pattern-detail"><p>Building, trade, and activity roll up into one expandable Gantt — collapse it for the big picture, expand it for every task, without switching between five trade files.</p></div>
+    </article>
+
+    <article class="pattern">
+      <button type="button" class="pattern-toggle">
+        <span class="pattern-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M9.5 9.8c0-1.3 1.1-2.1 2.5-2.1s2.5.8 2.5 1.9c0 2.6-5 1.4-5 3.9 0 1.1 1.1 1.9 2.5 1.9s2.5-.8 2.5-2"/></svg></span>
+        <span class="pattern-head"><b>Earned Value Costing</b><span>SPI, CPI &amp; EAC — automatic</span></span>
+        <span class="pattern-chevron">›</span>
+      </button>
+      <div class="pattern-detail"><p>Cost recalculates from the same weighted schedule progress you already track, so your forecast at completion reflects what's really happening — not a rough estimate from last quarter.</p></div>
+    </article>
+
+    <article class="pattern">
+      <button type="button" class="pattern-toggle">
+        <span class="pattern-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><line x1="12" y1="9" x2="12" y2="13.5"/><circle cx="12" cy="16.6" r="0.6" fill="currentColor" stroke="none"/></svg></span>
+        <span class="pattern-head"><b>Clash &amp; Sequence Detection</b><span>Catches conflicts before they cost you</span></span>
+        <span class="pattern-chevron">›</span>
+      </button>
+      <div class="pattern-detail"><p>Overlapping trades on the same floor, or a successor starting before its predecessor finishes — flagged automatically and scored by severity, so you triage the real risks first.</p></div>
+    </article>
+
+    <article class="pattern">
+      <button type="button" class="pattern-toggle">
+        <span class="pattern-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c3-1 4-6 7-8s5 6 8 4"/><path d="M3 21h18"/></svg></span>
+        <span class="pattern-head"><b>S-Curves, All 7 Types</b><span>Physical, cost, manpower, material</span></span>
+        <span class="pattern-chevron">›</span>
+      </button>
+      <div class="pattern-detail"><p>Master, per-building, and per-trade physical progress, plus cost, manpower, banana, and material S-curves — planned vs actual, always, not just at month-end.</p></div>
+    </article>
+
+    <article class="pattern">
+      <button type="button" class="pattern-toggle">
+        <span class="pattern-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+        <span class="pattern-head"><b>Materials &amp; Supply Forecasting</b><span>See the shortage before it stops work</span></span>
+        <span class="pattern-chevron">›</span>
+      </button>
+      <div class="pattern-detail"><p>Days-of-supply vs lead time, tracked per item per building, so a coming shortage shows up as a warning on your dashboard — not as an idle crew on site.</p></div>
+    </article>
+
+    <article class="pattern">
+      <button type="button" class="pattern-toggle">
+        <span class="pattern-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h.01M15 9h.01M9 15c1 1 5 1 6 0"/></svg></span>
+        <span class="pattern-head"><b>Vex AI Field Data</b><span>Turns raw documents into structured records</span></span>
+        <span class="pattern-chevron">›</span>
+      </button>
+      <div class="pattern-detail"><p>Progress reports, RFIs, variation orders, and violation logs are read once by Vex AI and structured straight into your project database — with a confidence score on every record.</p></div>
+    </article>
+  </div>
+</div>
+</section>
+
+</main>
+
+<footer class="shell footer-mega" id="footerMega">
+  <div class="footer-top">
+    <div class="footer-about">
+      <div class="footer-newsletter">
+        <label for="footerEmail">Get product updates</label>
+        <div class="footer-newsletter-row">
+          <input type="email" id="footerEmail" placeholder="you@company.com">
+          <button type="button" id="footerSubscribe">Subscribe</button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="footer-columns" aria-label="Footer">
+      <div class="footer-col">
+        <h4>Product</h4>
+        <button type="button" class="footer-link">Features</button>
+        <button type="button" class="footer-link">Pricing</button>
+        <button type="button" class="footer-link">Integrations</button>
+        <button type="button" class="footer-link">Changelog</button>
+        <button type="button" class="footer-link">Roadmap</button>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <button type="button" class="footer-link">About</button>
+        <button type="button" class="footer-link">Careers</button>
+        <button type="button" class="footer-link">Blog</button>
+        <button type="button" class="footer-link">Contact</button>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <button type="button" class="footer-link">Help Center</button>
+        <button type="button" class="footer-link">Documentation</button>
+        <button type="button" class="footer-link">API Reference</button>
+        <button type="button" class="footer-link">Community</button>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <button type="button" class="footer-link">Privacy Policy</button>
+        <button type="button" class="footer-link">Terms of Service</button>
+        <button type="button" class="footer-link">Sales &amp; Refunds</button>
+        <button type="button" class="footer-link">Security</button>
+        <button type="button" class="footer-link">Sitemap</button>
+      </div>
+    </nav>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-bottom-left">
+      <span>© 2026 ArtiField&trade;. All rights reserved.</span>
+    </div>
+    <div class="footer-bottom-center" id="artilineDevWrap"></div>
+    <div class="footer-bottom-right">
+      <div class="footer-social" aria-label="Follow ArtiField">
+        <a href="https://instagram.com/" id="socialInstagram" target="_blank" rel="noopener" aria-label="Instagram">
+          <span class="social-tip">Instagram</span>
+          <svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://facebook.com/" id="socialFacebook" target="_blank" rel="noopener" aria-label="Facebook">
+          <span class="social-tip">Facebook</span>
+          <svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 21v-7.5H17l.5-3.5h-3V7.8c0-1 .3-1.8 1.8-1.8H17.6V2.9C17.3 2.9 16.3 2.8 15.1 2.8c-2.5 0-4.2 1.5-4.2 4.3V10H8.4v3.5h2.5V21"/></svg>
+        </a>
+        <a href="https://linkedin.com/" id="socialLinkedin" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <span class="social-tip">LinkedIn</span>
+          <svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><line x1="7.5" y1="10" x2="7.5" y2="16.5"/><circle cx="7.5" cy="7" r="0.3" fill="currentColor"/><path d="M11.5 16.5V10M11.5 12.5c0-1.4 1-2.5 2.5-2.5s2.5 1 2.5 2.5v4"/></svg>
+        </a>
+        <a href="mailto:hello@artifield.ph" id="socialEmail" aria-label="Email">
+          <span class="social-tip">Email</span>
+          <svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.2"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>
+        </a>
+        <a href="sms:+639000000000" id="socialSms" aria-label="SMS">
+          <span class="social-tip">SMS</span>
+          <svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v11H9.5L5 20.5V16.5H4v-11Z"/><path d="M8 10h8M8 13h5"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+<div class="fl-overlay" id="flOverlay">
+  <div class="fl-modal">
+    <button type="button" class="fl-modal-close" id="flClose" aria-label="Close">✕</button>
+    <div id="flContent"></div>
+  </div>
+</div>
+<div id="adOverlay">
+  <div class="ad-topline"><div class="ad-topline-fill" id="adTopFill"></div></div>
+  <button class="ad-close" id="adClose" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+   <button class="ad-next" id="adNext" aria-label="Next">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+  </button>
+  <div class="ad-hint" id="adHint">Tap, scroll, or swipe →</div>
+  <div class="ad-stage" id="adStage">
+    <div class="ad-track" id="adTrack">
+
+      <section class="ad-slide" data-idx="0">
+        <div class="ad-inner">
+          <div class="ad-eyebrow">The Reality</div>
+          <h2 class="ad-h"><span class="ad-char" id="adH0"></span></h2>
+          <p class="ad-lede">Most business sites ask visitors to read, calculate, and decide on their own — then wonder why so few ever reach out.</p>
+          <div class="ad-grid">
+            <div class="ad-card"><div class="ad-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg></div><div class="ad-card-body"><b>Low-intent inquiries</b><span>Visitors read, guess, and leave without knowing if they're even a fit.</span></div></div>
+            <div class="ad-card"><div class="ad-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="ad-card-body"><b>Repetitive questions</b><span>Sales ends up re-asking what the website should've already answered.</span></div></div>
+            <div class="ad-card"><div class="ad-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="ad-card-body"><b>Slow response</b><span>By the time someone follows up, the visitor already found somewhere else.</span></div></div>
+            <div class="ad-card"><div class="ad-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg></div><div class="ad-card-body"><b>Lost opportunities</b><span>No structure means no way to tell a serious buyer from a browser.</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ad-slide" data-idx="1">
+        <div class="ad-inner">
+          <div class="ad-eyebrow">The ARTILINE Flow</div>
+          <h2 class="ad-h"><span class="ad-char" id="adH1"></span></h2>
+          <p class="ad-lede">Instead of a wall of text, visitors move through a decision — and arrive at something useful before they ever submit a form.</p>
+          <div class="ad-flow"><span>Story</span><span>Interaction</span><span>Intelligence</span><span>Result</span><span>Action</span><span>Continuity</span></div>
+        </div>
+      </section>
+
+      <section class="ad-slide" data-idx="2">
+        <div class="ad-inner">
+          <div class="ad-eyebrow">Why It Works</div>
+          <h2 class="ad-h"><span class="ad-char" id="adH2"></span></h2>
+          <p class="ad-lede">Pricing, eligibility, and qualification stay deterministic — AI explains and assists, it never invents a price or overrides a business rule.</p>
+          <div class="ad-grid">
+            <div class="ad-card"><b>Adaptive questions</b><span>Only asks what's relevant to what the visitor already picked.</span></div>
+            <div class="ad-card"><b>Lead scoring</b><span>Weighs budget, scope, and readiness into one qualification result.</span></div>
+            <div class="ad-card"><b>Instant value</b><span>Visitors get an estimate or recommendation before you ask for contact info.</span></div>
+            <div class="ad-card"><b>Full continuity</b><span>Captured answers flow straight into follow-up, CRM, and reporting.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ad-slide" data-idx="3">
+        <div class="ad-inner">
+          <div class="ad-eyebrow">A Note From The Founder</div>
+          <h2 class="ad-h"><span class="ad-char" id="adH3"></span></h2>
+          <div class="ad-ceo">
+            <div class="ad-ceo-label">ARTIBYTE</div>
+            <p class="ad-ceo-quote">"Success beats the weak part of you, and rewards the version who refuses to quit. Every product we build comes from that same place — we don't ship the easy version, we ship the one that actually works."</p>
+            <div class="ad-ceo-sig">
+              <div class="ad-ceo-avatar">ET</div>
+              <div class="ad-ceo-sig-text"><b>Ephraim Nasser E. Tambiga</b><span>Chairman &amp; CEO, ATH•NA / ArtiByte</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ad-slide" data-idx="4">
+        <div class="ad-inner">
+          <div class="ad-eyebrow">Let's Talk</div>
+          <h2 class="ad-h"><span class="ad-char" id="adH4"></span></h2>
+          <p class="ad-lede">Tell us about your project — someone from ArtiByte will follow up with next steps.</p>
+          <div class="ad-form" id="adForm">
+            <div class="ad-field" id="adFName"><label>Full name</label><input type="text" id="adName" placeholder="Juan Dela Cruz"></div>
+            <div class="ad-row2">
+              <div class="ad-field" id="adFEmail"><label>Work email</label><input type="email" id="adEmail" placeholder="you@company.com"></div>
+              <div class="ad-field" id="adFCompany"><label>Company / project name</label><input type="text" id="adCompany" placeholder="Your project"></div>
+            </div>
+            <div class="ad-field"><label>Phone (optional)</label><input type="tel" id="adPhone" placeholder="09XX XXX XXXX"></div>
+            <button type="button" class="ad-submit" id="adSubmitBtn" onclick="submitArtilineDeck(this)">Send &amp; get started →</button>
+          </div>
+          <div class="ad-success" id="adSuccess">
+            <svg class="ad-success-check" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24"/>
+              <circle class="ring" cx="28" cy="28" r="24"/>
+              <path class="tick" d="M18 29l7 7 13-14"/>
+            </svg>
+            <b>Thanks — we got it.</b><span id="adSuccessText"></span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+  <div class="ad-dots" id="adDots"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIG
+============================================================ */
+const config = {
+  webhookUrl: "", // paste a Google Apps Script Web App URL (or any endpoint) here to collect leads; blank = local test mode only
+  appUrl: "", // paste your ArtiField Application Access Gateway URL here — this is the escape hatch for existing users, NOT the app itself
+  social: {
+    facebook: "https://facebook.com/",      // full FB page URL
+    instagram: "https://instagram.com/",    // full IG profile URL
+    linkedin: "https://linkedin.com/",      // full LinkedIn page URL
+    email: "hello@artifield.ph",            // gmail/company email, no "mailto:"
+    smsNumber: "09000000000"                // 11-digit PH mobile, starts with 0
+  },
+  actions: ["Book a Free Demo", "Talk to Sales"],
+  developer: {
+    enabled: true,
+    labelIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>',
+    label: "Get",
+    contactUrl: ""
+  }
+};
+
+document.getElementById("openApp").addEventListener("click", () => {
+  const btn = document.getElementById("openApp");
+  const originalLabel = btn.textContent;
+  const appWindow = window.open("", "_blank");
+
+  if(!appWindow){
+    toast("Please allow pop-ups for this site to open ArtiField.", true);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Loading…";
+
+  if(typeof google === "undefined" || !google.script || !google.script.run){
+    if(config.appUrl){
+      appWindow.location.href = config.appUrl;
+    } else {
+      appWindow.close();
+      toast("Open App is available when this page is served through Apps Script.", true);
+    }
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler((url) => {
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+      if(url){
+        appWindow.location.href = url;
+      } else if(config.appUrl){
+        appWindow.location.href = config.appUrl;
+      } else {
+        appWindow.close();
+        toast("App link not set yet — set it via ⚙️ Artiline System → Set App URL", true);
+      }
+    })
+    .withFailureHandler(() => {
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+      if(config.appUrl){
+        appWindow.location.href = config.appUrl;
+      } else {
+        appWindow.close();
+        toast("Could not load app link", true);
+      }
+    })
+    .getAppUrl();
+});
+
+const steps = [
+  {
+    key: "businessType",
+    q: "What kind of construction work do you run?",
+    sub: "ArtiField adapts to how your project actually runs — GC, single-trade sub, or PMO.",
+    opts: [
+      { title: "General Contractor / Developer", sub: "You're managing the whole build, every trade.",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><line x1="8" y1="7" x2="8" y2="7.01"/><line x1="12" y1="7" x2="12" y2="7.01"/><line x1="16" y1="7" x2="16" y2="7.01"/><line x1="8" y1="11" x2="8" y2="11.01"/><line x1="12" y1="11" x2="12" y2="11.01"/><line x1="16" y1="11" x2="16" y2="11.01"/></svg>',
+        detail: "The Consolidated Gantt rolls every trade's schedule into one timeline, so you see the whole build without chasing five separate spreadsheets." },
+      { title: "Subcontractor / Single Trade", sub: "You're responsible for one scope across multiple buildings.",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="3.2"/><circle cx="17" cy="7" r="3.2"/><circle cx="12" cy="17" r="3.2"/></svg>',
+        detail: "Per-trade S-curves and building-level filters keep your own crews' pace visible, separate from the noise of every other trade on the job." },
+      { title: "Construction Management / PMO", sub: "You oversee schedule, cost, and reporting across the project.",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="6" width="3" height="12"/></svg>',
+        detail: "The executive dashboard, EVM costing, and export-ready reports give you the numbers stakeholders actually ask for, without a week of prep." },
+      { title: "Other", sub: "Tell us how your project runs — we'll still show you your fit.",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18" cy="12" r="1.4"/></svg>',
+        detail: "Every construction project has a version of the same problem: knowing where you actually stand. We'll match you to the closest fit." }
+    ]
+  },
+  {
+    key: "painPoint",
+    q: "What's your biggest project control headache right now?",
+    sub: "Pick the one that costs you the most time, money, or sleep today.",
+    opts: [
+      { title: "I don't trust my % complete numbers", sub: "Reported progress and site reality don't match.",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 16v.01M12 8.5c1.3 0 2.3.8 2.3 2 0 1.5-2.3 1.4-2.3 3.3"/></svg>',
+        detail: "A field update log with smart validation flags anything that looks off — a jump past 100%, a drop with no explanation — so the numbers you report are numbers you can defend." },
+      { title: "My cost forecast is guesswork", sub: "You won't know what this building actually costs until it's finished.",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h5.5a3.5 3.5 0 0 1 0 7H7V4Z"/><path d="M7 11v9M4 8h6M4 13h4"/></svg>',
+        detail: "Earned value costing recalculates CPI and EAC automatically from the same schedule progress you already track — no separate cost spreadsheet to keep in sync." },
+      { title: "Trades keep clashing on site", sub: "Crews collide on the same floor, or start out of sequence.",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15 15 9"/><path d="M11 6.5 13 4.5a3.5 3.5 0 0 1 5 5L16 11.5"/><path d="M13 17.5 11 19.5a3.5 3.5 0 0 1-5-5L8 12.5"/></svg>',
+        detail: "Space/time clash and sequence-violation detection catches these automatically, scored by severity, before they turn into a site incident." },
+      { title: "Manual spreadsheets & version chaos", sub: "Five trade files, five formats, no single source of truth.",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M9 9.5V20"/></svg>',
+        detail: "Every trade's schedule import merges into one connected ledger — re-imports flag what changed instead of silently overwriting your history." }
+    ]
+  },
+  {
+    key: "scale",
+    q: "Roughly how many buildings or phases are you managing right now?",
+    sub: "This just helps us show you the right scale of setup — no wrong answers.",
+    input: true
+  },
+  {
+    key: "result",
+    q: "Here's where ArtiField fits",
+    sub: "Based on your answers, here's the most direct path from your current workflow to project numbers you can actually trust.",
+    result: true
+  },
+  {
+    key: "action",
+    q: "Ready to see it running on your own schedule?",
+    sub: "A 20-minute demo uses your real project files — not a canned dataset — so you can see how ArtiField fits your actual site.",
+    action: true
+  }
+];
+
+const FIT_MAP = {
+  "I don't trust my % complete numbers": {
+    headline: "Start with a field update log you can trust.",
+    body: "Every progress entry is validated against the schedule and flagged for anything that looks off — a jump past 100%, a drop with no explanation — so what gets reported is what actually happened on site.",
+    modules: ["Field Update Log", "Smart Validation", "Accomplishment Snapshots"]
+  },
+  "My cost forecast is guesswork": {
+    headline: "Let earned value do the forecasting.",
+    body: "CPI and EAC recalculate automatically from the same weighted schedule progress you're already tracking — the moment progress or cost changes, so does the forecast.",
+    modules: ["Earned Value Costing", "CPI / SPI", "EAC Forecast"]
+  },
+  "Trades keep clashing on site": {
+    headline: "Catch the clash before it costs you a day.",
+    body: "Overlapping trades on the same floor, or a successor that starts before its predecessor finishes, are flagged automatically and scored by severity — so you triage the real risks first.",
+    modules: ["Clash Detection", "Sequence Violations", "Severity Scoring"]
+  },
+  "Manual spreadsheets & version chaos": {
+    headline: "Replace five spreadsheets with one ledger.",
+    body: "Every trade's schedule import merges into a single connected database. Re-importing an updated file flags what moved instead of silently overwriting your history.",
+    modules: ["Consolidated Import", "Revision Tracking", "Master Ledger"]
+  }
+};
+const DEFAULT_FIT = {
+  headline: "A system built around what's actually happening on site.",
+  body: "Whatever's slowing you down today, ArtiField connects schedule, cost, and materials into one ledger — so the numbers you see are the numbers that are true on the ground.",
+  modules: ["Consolidated Gantt", "EVM Costing", "Clash Detection"]
+};
+
+let index = 0;
+let formData = { businessType: "", painPoint: "", scale: "", action: "" };
+
+const q = document.getElementById("question"), sub = document.getElementById("sub"), body = document.getElementById("body");
+const next = document.getElementById("next"), back = document.getElementById("back"), bar = document.getElementById("bar"), progressText = document.getElementById("progressText");
+const actionsBar = document.getElementById("actionsBar");
+const stepsUI = [...document.querySelectorAll(".step")];
+
+function syncActionsVisibility(){
+  if(steps[index].action){
+    actionsBar.classList.remove("visible");
+    return;
+  }
+  actionsBar.classList.toggle("visible", !next.disabled || !back.disabled);
+}
+
+function render(){
+  const s = steps[index];
+  q.textContent = s.q;
+  sub.textContent = s.sub;
+  body.innerHTML = "";
+  next.disabled = true;
+
+  stepsUI.forEach((el, i) => el.classList.toggle("active", i === index));
+  bar.style.width = ((index + 1) / steps.length * 100) + "%";
+  progressText.textContent = (index + 1) + " / " + steps.length;
+  back.disabled = index === 0;
+
+  if(s.opts){
+    const wrap = document.createElement("div");
+    wrap.className = "options";
+    s.opts.forEach((o) => {
+      const card = document.createElement("div");
+      card.className = "option";
+      if(formData[s.key] === o.title) card.classList.add("selected");
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "option-toggle";
+      btn.innerHTML = '<span class="option-icon">' + o.icon + '</span>' +
+        '<span class="option-head"><b>' + o.title + '</b><span>' + o.sub + '</span></span>' +
+        '<span class="option-chevron">›</span>';
+
+      const detail = document.createElement("div");
+      detail.className = "option-detail";
+      detail.innerHTML = '<p>' + o.detail + '</p>';
+
+      function selectOption(){
+        wrap.querySelectorAll(".option.selected").forEach(x => x.classList.remove("selected"));
+        card.classList.add("selected");
+        formData[s.key] = o.title;
+        next.disabled = false;
+        syncActionsVisibility();
+      }
+      function openOption(){
+        wrap.querySelectorAll(".option.open").forEach(other => {
+          if(other !== card){ other.classList.remove("open"); other.querySelector(".option-detail").style.maxHeight = null; }
+        });
+        card.classList.add("open");
+        detail.style.maxHeight = detail.scrollHeight + "px";
+      }
+      function closeOption(){
+        card.classList.remove("open");
+        detail.style.maxHeight = null;
+      }
+
+      if(supportsHover){
+        card.addEventListener("mouseenter", openOption);
+        card.addEventListener("mouseleave", closeOption);
+        btn.addEventListener("focus", openOption);
+        btn.addEventListener("blur", closeOption);
+        btn.addEventListener("click", selectOption);
+      } else {
+        btn.addEventListener("click", () => {
+          const wasOpen = card.classList.contains("open");
+          selectOption();
+          if(!wasOpen) openOption();
+        });
+      }
+
+      card.appendChild(btn);
+      card.appendChild(detail);
+      wrap.appendChild(card);
+    });
+    body.appendChild(wrap);
+    if(formData[s.key]) next.disabled = false;
+  }
+
+  if(s.input){
+    const inp = document.createElement("input");
+    inp.className = "input";
+    inp.placeholder = "e.g. 6";
+    inp.inputMode = "numeric";
+    inp.value = formData.scale || "";
+    inp.addEventListener("input", () => {
+      const val = inp.value.trim();
+      formData.scale = val;
+      next.disabled = !(val && /\d/.test(val));
+      syncActionsVisibility();
+    });
+    body.appendChild(inp);
+    if(inp.value) next.disabled = false;
+  }
+
+  if(s.result){
+    const fit = FIT_MAP[formData.painPoint] || DEFAULT_FIT;
+    body.innerHTML =
+      '<div class="result result-step4"><small>YOUR FIT</small>' +
+      '<div class="headline">' + fit.headline + '</div>' +
+      '<div class="body">' + fit.body + '</div>' +
+      '<div class="result-grid">' +
+        '<div class="metric"><small>PROJECT TYPE</small><b>' + (formData.businessType || "—") + '</b></div>' +
+        '<div class="metric"><small>APPROX. BUILDINGS/PHASES</small><b>' + (formData.scale || "—") + '</b></div>' +
+        '<div class="metric"><small>STARTS WITH</small><b>' + fit.modules[0] + '</b></div>' +
+      '</div></div>';
+    next.disabled = false;
+  }
+
+  if(s.action){
+    const buttonsHtml = config.actions
+      .map((label, i) => '<button class="btn ' + (i === 0 ? 'btn-light' : 'btn-secondary') + '" id="actionBtn' + i + '">' + label + ' →</button>')
+      .join('');
+    body.innerHTML =
+      '<div class="result" id="actionResult"><small>NEXT STEP</small>' +
+      '<div class="headline">Let\'s get you a demo on your own project.</div>' +
+      '<div class="body">Share your details and someone from the ArtiField team will follow up to schedule a 20-minute walkthrough using your actual schedule and cost data.</div>' +
+      '<span class="result-form-label">Your details</span>' +
+      '<div class="result-form" id="leadForm">' +
+        '<div class="result-field" id="fieldName"><label>Full name</label><input type="text" id="leadName" placeholder="Juan Dela Cruz"></div>' +
+        '<div class="result-row">' +
+          '<div class="result-field" id="fieldEmail"><label>Work email</label><input type="email" id="leadEmail" placeholder="you@company.com"></div>' +
+          '<div class="result-field" id="fieldCompany"><label>Company / project name</label><input type="text" id="leadCompany" placeholder="Your project"></div>' +
+        '</div>' +
+        '<div class="result-field"><label>Phone (optional)</label><input type="tel" id="leadPhone" placeholder="09XX XXX XXXX"></div>' +
+      '</div>' +
+      '<div class="action-buttons" id="actionButtons">' + buttonsHtml + '</div></div>';
+    config.actions.forEach((label, i) => {
+      document.getElementById("actionBtn" + i).onclick = (e) => submitLead(label, e.currentTarget);
+    });
+    next.disabled = true;
+  }
+
+  syncActionsVisibility();
+}
+
+next.onclick = () => { if(index < steps.length - 1){ index++; render(); } };
+back.onclick = () => { if(index > 0){ index--; render(); } };
+document.getElementById("jump").onclick = () => document.getElementById("experience").scrollIntoView({ behavior: "smooth" });
+
+const wfDataText = {
+  1: "VYKIM CSA — Building N +142 activities",
+  2: "Building N   1,204 → 1,346 tasks",
+  3: "2 clashes flagged · Medium severity",
+  4: "SPI 0.94 · Building N 62% complete"
+};
+
+const wfStages = [1, 2, 3, 4].map(n => ({
+  el: document.getElementById("wfStage" + n),
+  data: document.getElementById("wfData" + n),
+  value: wfDataText[n]
+}));
+
+function resetWorkflow(fromIndex){
+  wfStages.forEach((s, i) => {
+    if(i >= fromIndex){
+      s.el.classList.remove("active", "done");
+      s.data.classList.remove("show");
+      s.data.textContent = "—";
+    }
+  });
+}
+
+function playWorkflow(fromIndex){
+  const playBtn = document.getElementById("wfPlay");
+  playBtn.disabled = true;
+  resetWorkflow(fromIndex);
+
+  let i = fromIndex;
+  function step(){
+    if(i > 0) wfStages[i - 1].el.classList.replace("active", "done");
+    if(i >= wfStages.length){ playBtn.disabled = false; return; }
+    const s = wfStages[i];
+    s.el.classList.add("active");
+    if(i === 0){
+      setTimeout(() => s.el.scrollIntoView({ behavior: "smooth", block: "start" }), 260);
+    }
+    setTimeout(() => {
+      s.data.textContent = s.value;
+      requestAnimationFrame(() => s.data.classList.add("show"));
+    }, 220);
+    i++;
+    setTimeout(step, 750);
+  }
+  step();
+}
+
+const wfOverlay = document.getElementById("wfOverlay");
+
+function openWorkflowModal(){
+  wfOverlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+  playWorkflow(0);
+}
+
+function closeWorkflowModal(){
+  wfOverlay.classList.remove("open");
+  document.body.style.overflow = "";
+  resetWorkflow(0);
+}
+
+document.getElementById("wfLaunch").onclick = openWorkflowModal;
+document.getElementById("wfClose").onclick = closeWorkflowModal;
+wfOverlay.onclick = (e) => { if(e.target === wfOverlay) closeWorkflowModal(); };
+document.getElementById("wfPlay").onclick = () => playWorkflow(0);
+wfStages.forEach((s, idx) => { s.el.onclick = () => playWorkflow(idx); });
+
+document.querySelectorAll(".sim-cta").forEach(link => {
+  link.addEventListener("click", () => {
+    if(wfOverlay.classList.contains("open")) closeWorkflowModal();
+  });
+});
+
+const supportsHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+function closePatternCard(card){
+  card.classList.remove("open");
+  card.querySelector(".pattern-detail").style.maxHeight = null;
+}
+function openPatternCard(card){
+  document.querySelectorAll("#patternsWrap .pattern.open").forEach(open => {
+    if(open !== card) closePatternCard(open);
+  });
+  card.classList.add("open");
+  card.querySelector(".pattern-detail").style.maxHeight = card.querySelector(".pattern-detail").scrollHeight + "px";
+}
+
+document.querySelectorAll("#patternsWrap .pattern").forEach(card => {
+  const btn = card.querySelector(".pattern-toggle");
+
+  if(supportsHover){
+    card.addEventListener("mouseenter", () => openPatternCard(card));
+    card.addEventListener("mouseleave", () => closePatternCard(card));
+    btn.addEventListener("focus", () => openPatternCard(card));
+    btn.addEventListener("blur", () => closePatternCard(card));
+  } else {
+    btn.addEventListener("click", () => {
+      const isOpen = card.classList.contains("open");
+      document.querySelectorAll("#patternsWrap .pattern.open").forEach(closePatternCard);
+      if(!isOpen) openPatternCard(card);
+    });
+  }
+});
+
+window.addEventListener("resize", () => {
+  document.querySelectorAll("#patternsWrap .pattern.open").forEach(card => {
+    card.querySelector(".pattern-detail").style.maxHeight = card.querySelector(".pattern-detail").scrollHeight + "px";
+  });
+});
+
+/* === HERO EDGE NAV — click opens detailed module modal === */
+function edgeFeature(num, title, sub, bullets){
+  return '<div class="edge-feature"><span class="edge-feature-num">' + num + '</span><div class="edge-feature-body"><b>' + title + '</b><span>' + sub + '</span><ul>' +
+    bullets.map(b => '<li>' + b + '</li>').join('') + '</ul></div></div>';
+}
+function edgeExtra(label, items){
+  return '<div class="edge-extra"><div class="edge-extra-label">' + label + '</div><ul class="fl-list">' +
+    items.map(i => '<li>' + i + '</li>').join('') + '</ul></div>';
+}
+function edgeFlow(label, steps){
+  return '<div class="edge-flow-block"><div class="edge-flow-label">' + label + '</div><div class="edge-flow">' +
+    steps.map((s, i) => (i ? '<span class="edge-flow-arrow">→</span>' : '') + '<span>' + s + '</span>').join('') +
+    '</div></div>';
+}
+function edgeResult(label, text){
+  return '<div class="edge-result"><div class="edge-result-label">' + label + '</div><div class="edge-result-text">' + text + '</div></div>';
+}
+
+const EDGE_CONTENT = {
+  schedule: {
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5 12 12l9-4.5L12 3Z"/><path d="M3 7.5V16.5L12 21l9-4.5V7.5"/><path d="M12 12v9"/></svg>',
+    kicker: "PRODUCT",
+    title: "Consolidated Schedule",
+    tagline: "Know exactly where every trade stands.",
+    intro: "One master schedule ledger keeps every building, every trade, and every activity on the same timeline.",
+    features: [
+      ["01","Import &amp; Merge","Bring in schedules from every trade file format",["Auto-detect header rows and date columns across formats","Merge new imports into one connected ledger","Flag revisions instead of silently overwriting history"]],
+      ["02","Consolidated Gantt","Building → trade → activity, one expandable view",["Collapse to a building rollup or expand to every task","Filter by building, trade, floor, status, or criticality","Color by trade, status shown as shape — not just color"]],
+      ["03","Revision Tracking","See what moved, and when",["Every shifted date logged with before/after values","Locked/verified tasks protected from accidental overwrite","Named baselines to compare against any point in time"]],
+      ["04","Clash &amp; Sequence Detection","Space/time overlaps and order violations, automatically",["Same floor, overlapping trades, beyond tolerance","Successor starting before predecessor finishes","Severity-scored so you triage the real problems first"]],
+      ["05","Data Confidence","Know how much to trust each record",["Confidence score per imported task","Out-of-range dates and ambiguous columns flagged","Full source traceability back to file, sheet, and row"]]
+    ],
+    extraLabel: "VISIBILITY",
+    extra: ["Planned vs actual per task, per trade, per building","SPI by building and by trade","Delay cascade — who's affected downstream","Critical path, at-risk, and delayed activities, called out"],
+    flows: [["CONNECTED FLOW",["Import","Master Ledger","Clash Check","Baseline Compare","Gantt"]]],
+    resultLabel: "THE RESULT",
+    result: "One timeline. Every trade. No more reconciling five different Excel files."
+  },
+  costing: {
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M9.5 9.8c0-1.3 1.1-2.1 2.5-2.1s2.5.8 2.5 1.9c0 2.6-5 1.4-5 3.9 0 1.1 1.1 1.9 2.5 1.9s2.5-.8 2.5-2"/></svg>',
+    kicker: "PRODUCT",
+    title: "EVM Costing",
+    tagline: "Know what the project will actually cost.",
+    intro: "Cost recalculates itself from the same schedule progress you're already tracking — earned value, not guesswork.",
+    features: [
+      ["01","Budget vs Actual","Track budget, committed, and actual cost per building",["Line-item cost entries by trade and category","Committed cost (PO issued, unpaid) tracked separately","Full audit trail — who logged what, and when"]],
+      ["02","Earned Value","EV computed straight from schedule progress",["EV = budget × weighted schedule progress","No separate cost curve to keep in sync","Recalculates on every progress update"]],
+      ["03","CPI &amp; SPI","Cost and schedule performance, per building and overall",["Color-coded thresholds so problems jump out","Trend history, not just a single snapshot","Drivers explainer — which building or trade is dragging the number"]],
+      ["04","EAC Forecast","Forecast at completion, recalculated automatically",["Confidence-bounded — flagged when data is too thin to trust","Updates the moment cost or progress changes","Variance at completion (VAC) shown alongside"]],
+      ["05","Profitability","Contract value vs forecast cost, per building",["Projected profit at completion","Profit to date vs projected profit","Rolls up across every building in the project"]]
+    ],
+    extraLabel: "COST HISTORY",
+    extra: ["Recalculates with every cost entry and progress update","Full audit trail for every cost line item","Traceable back to the source file and row"],
+    flows: [["COST FLOW",["Budget","Actual Cost","Earned Value","CPI","EAC","Projected Profit"]]],
+    resultLabel: "THE RESULT",
+    result: "Your schedule and your cost forecast finally agree with each other."
+  },
+  clashes: {
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><line x1="12" y1="9" x2="12" y2="13.5"/><circle cx="12" cy="16.6" r="0.6" fill="currentColor" stroke="none"/></svg>',
+    kicker: "PRODUCT",
+    title: "Clash &amp; Sequence Detection",
+    tagline: "Catch the conflict before the trades do.",
+    intro: "Two crews on the same floor at the same time. A successor starting before its predecessor finishes. ArtiField flags it automatically.",
+    features: [
+      ["01","Space/Time Clashes","Overlapping trades, same building &amp; floor",["Flagged when overlap passes a set tolerance","Grouped by building and floor for fast review","One click to see both activities side by side"]],
+      ["02","Sequence Violations","Successor before predecessor, across trades",["Checked across every trade sharing a floor","Not limited to a single trade's own file","Gap shown in days, not just flagged yes/no"]],
+      ["03","Severity Scoring","High / Medium / Low, based on overlap days",["Triage the real problems first","Consistent scoring across the whole project","Filterable so you can focus a review session"]],
+      ["04","Compatible Pairs","Tune out the false positives",["Mark trades that can safely share a floor","Applies project-wide once set","Keeps the log signal-heavy, not noisy"]],
+      ["05","Data Quality Flags","Know when a clash check couldn't run",["Dates outside the expected project window","Floor not detected — clash check skipped for that task","Called out separately so nothing is silently missed"]]
+    ],
+    extraLabel: "TRACEABILITY",
+    extra: ["What clashed?","Which building and floor?","How many days of overlap?","Who's responsible for each side?"],
+    flows: [["DETECTION FLOW",["Schedule Import","Floor/Trade Grouping","Overlap Check","Severity Score","Log"]]],
+    resultLabel: "THE RESULT",
+    result: "The conflict shows up on your screen before it shows up on the jobsite."
+  }
+};
+
+function openEdgeModal(key){
+  const m = EDGE_CONTENT[key];
+  if(!m) return;
+  document.getElementById("flContent").innerHTML =
+    '<div class="edge-modal-head"><span class="edge-modal-icon">' + m.icon + '</span><div><div class="fl-kicker">' + m.kicker + '</div><div class="fl-title" style="margin:2px 0 0">' + m.title + '</div></div></div>' +
+    '<div class="edge-modal-tagline">' + m.tagline + '</div>' +
+    '<p class="fl-intro">' + m.intro + '</p>' +
+    '<div class="edge-features">' + m.features.map(f => edgeFeature(f[0], f[1], f[2], f[3])).join('') + '</div>' +
+    edgeExtra(m.extraLabel, m.extra) +
+    m.flows.map(fl => edgeFlow(fl[0], fl[1])).join('') +
+    edgeResult(m.resultLabel, m.result) +
+    '<button type="button" class="btn btn-dark edge-modal-cta" id="edgeModalCta">See if it fits →</button>' +
+    '<button type="button" class="fl-back" id="flBack">← Back</button>';
+  document.getElementById("flBack").onclick = closeFooterModal;
+  document.getElementById("edgeModalCta").onclick = () => {
+    closeFooterModal();
+    document.getElementById("experience").scrollIntoView({ behavior: "smooth" });
+  };
+  flOverlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+document.querySelectorAll(".hero-edge-nav .edge-item").forEach(item => {
+  item.addEventListener("click", () => openEdgeModal(item.dataset.key));
+});
+
+function toast(t, isError){
+  const el = document.getElementById("toast");
+  el.textContent = t;
+  el.style.background = isError ? "#a8433e" : "#171b18";
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2500);
+}
+
+const footerSubscribe = document.getElementById("footerSubscribe");
+if(footerSubscribe){
+  footerSubscribe.addEventListener("click", () => {
+    const emailEl = document.getElementById("footerEmail");
+    const val = emailEl.value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){
+      toast("Enter a valid email address", true);
+      return;
+    }
+    console.log("Newsletter signup (local test mode):", val);
+    toast("✓ Subscribed");
+    emailEl.value = "";
+  });
+}
+
+function flStep(n, title, desc){
+  return '<div class="fl-step"><span class="fl-step-num">0' + n + '</span><span class="fl-step-body"><b>' + title + '</b><span>' + desc + '</span></span></div>';
+}
+function flFaq(q, a){
+  return '<div class="fl-faq-item"><b>' + q + '</b><span>' + a + '</span></div>';
+}
+
+const ARTILINE_PITCH = {
+  kicker: "ARTIBYTE PRESENTS",
+  title: "Don't just show project teams a demo. Let them experience the fit.",
+  intro: "This site you're looking at right now — the fit-check, the workflow demo, every card that opens instead of just sitting there — is built on ARTILINE, the business experience engine behind ArtiByte's products.",
+  body:
+    flStep(1, "What ARTILINE actually is", "Not a website builder. A system that turns a passive product page into a guided experience — one that asks the right questions, understands the answer, and hands the visitor a real result before ever asking for their contact info.") +
+    flStep(2, "The problem it solves", "Most construction software sites make visitors do all the work — read every feature, guess what applies to their project, and reach out without knowing if they're even a fit. That produces slow, low-quality leads and a sales team stuck re-asking questions the website should have already answered.") +
+    flStep(3, "The six-stage flow", "Story → Interaction → Intelligence → Result → Action → Continuity. The visitor is guided through a decision instead of a wall of text, and what they submit is already qualified, structured, and ready for your team.") +
+    flStep(4, "Built for considered, high-stakes decisions", "Construction, real estate, engineering, and other project-driven industries — anywhere a customer needs guidance before they're ready to commit. If your business sells something people think hard about, this is built for you.") +
+    flStep(5, "What you get", "The same fit-check experience and workflow demo you just clicked through on this page — configured around your business, your pricing logic, and your brand.") +
+    '<div class="cd-ceo">' +
+      '<div class="cd-ceo-label">A NOTE FROM THE FOUNDER</div>' +
+      '<p class="cd-ceo-quote">"Success beats the weak part of you, and rewards the version who refuses to quit. Every product we build at ArtiByte comes from that same place — we don\'t ship the easy version, we ship the one that actually works."</p>' +
+      '<div class="cd-ceo-sig">' +
+        '<div class="cd-ceo-avatar">ET</div>' +
+        '<div class="cd-ceo-sig-text"><b>Ephraim Nasser E. Tambiga</b><span>Chairman &amp; CEO, ATH•NA / ArtiByte</span></div>' +
+      '</div>' +
+    '</div>' +
+    '<span class="result-form-label" style="margin-top:22px;color:var(--faint)">Get this for your business</span>' +
+    '<div class="result-form" id="artilineLeadForm">' +
+      '<div class="cd-field" id="apFieldName"><label>Full name</label><input type="text" id="apName" placeholder="Juan Dela Cruz"></div>' +
+      '<div class="cd-row">' +
+        '<div class="cd-field" id="apFieldEmail"><label>Work email</label><input type="email" id="apEmail" placeholder="you@company.com"></div>' +
+        '<div class="cd-field" id="apFieldCompany"><label>Business name</label><input type="text" id="apCompany" placeholder="Your business"></div>' +
+      '</div>' +
+      '<div class="cd-field"><label>Phone (optional)</label><input type="tel" id="apPhone" placeholder="09XX XXX XXXX"></div>' +
+    '</div>' +
+    '<div class="action-buttons" style="margin-top:16px"><button type="button" class="btn btn-dark" id="artilinePitchCta">Get ARTILINE for your business →</button></div>' +
+    '<div id="artilinePitchResult"></div>',
+};
+
+const FOOTER_CONTENT = {
+  "Features": {
+    kicker: "PRODUCT",
+    title: "Every part of your project, actually connected.",
+    intro: "From schedule import to cost forecast, clash detection, and reporting — one connected ledger end to end.",
+    body: '<div class="fl-steps">' +
+      flStep(1, "Executive Dashboard", "Project-wide health signals surface automatically — schedule variance, budget overrun risk, material shortages, open clashes — backed by per-building performance rows.") +
+      flStep(2, "Consolidated Gantt", "Building → trade → activity hierarchy on one connected timeline, with baseline compare, focus modes, and export.") +
+      flStep(3, "Clash &amp; Sequence Log", "Space/time overlaps and predecessor/successor violations, severity-scored, with data quality issues called out separately.") +
+      flStep(4, "Finance &amp; Cost (EVM)", "Budget vs actual vs committed, CPI, SPI, EAC, and projected profit — recalculated automatically from schedule progress.") +
+      flStep(5, "Materials &amp; Supply", "Days-of-supply vs lead time per item per building, with shortage risk flagged before it stops work.") +
+      flStep(6, "S-Curves (7 types)", "Master, per-building, and per-trade physical progress, plus cost, manpower, banana, and material curves.") +
+      flStep(7, "Field Data (Vex AI)", "Progress reports, RFIs, variation orders, and violations read once by Vex and structured directly into your project database.") +
+      flStep(8, "Baselines, Snapshots &amp; Reports", "Named baselines for comparison, a full import history, and export-ready reports for weekly, monthly, and executive audiences.") +
+      '</div>'
+  },
+  "Pricing": {
+    kicker: "PLANS",
+    title: "Simple licensing, built around your project.",
+    intro: "Project-control software without an enterprise software contract. Launch offer: 80% off the first year for the first 100 qualifying projects.",
+    body: '<div class="fl-plans">' +
+      '<div class="fl-plan"><b>Solo</b><div class="price">₱2,999/yr</div><ul><li>One project, one building</li><li>Schedule import, Gantt, S-curve</li><li>Basic clash detection</li><li>Reports &amp; audit trail</li></ul></div>' +
+      '<div class="fl-plan featured"><b>Project Team</b><div class="price">₱95,000/yr</div><ul><li>Full core platform</li><li>Multi-building consolidated Gantt</li><li>EVM costing, materials, S-curves</li><li>Baselines, snapshots, Vex AI</li></ul></div>' +
+      '<div class="fl-plan"><b>Multi-Project</b><div class="price">₱75,000/yr</div><ul><li>Everything in Project Team</li><li>Portfolio-level reporting</li><li>Custom integrations</li><li>Training &amp; full onboarding included</li></ul></div>' +
+      '<div class="fl-plan"><b>Enterprise</b><div class="price">Custom</div><ul><li>Custom scale &amp; integrations</li><li>Dedicated deployment support</li><li>Custom workflows</li></ul></div>' +
+      '</div>' +
+      '<div class="fl-note">Pricing is per project, per year. Use the fit-check tool above to talk to sales about your setup.</div>'
+  },
+  "Integrations": {
+    kicker: "CONNECT",
+    title: "Built native, growing into a full ecosystem.",
+    intro: "ArtiField runs natively on Google's infrastructure today, with a clear roadmap toward broader project-system connections.",
+    body: '<div class="fl-columns">' +
+      '<div class="fl-col"><h4>Native today</h4><ul><li>Google Apps Script</li><li>Google Sheets</li><li>Excel (.xlsx/.xls) import</li><li>Vex AI JSON import</li></ul></div>' +
+      '<div class="fl-col"><h4>Integration-ready</h4><ul><li>Google Drive</li><li>Gmail</li><li>Google Calendar</li></ul></div>' +
+      '<div class="fl-col"><h4>Roadmap</h4><ul><li>Primavera P6 two-way sync</li><li>Microsoft Project</li><li>Accounting systems</li><li>REST API / Webhooks</li></ul></div>' +
+      '</div>'
+  },
+  "Changelog": {
+    kicker: "PRODUCT EVOLUTION",
+    title: "How ArtiField has grown.",
+    body: '<div class="fl-columns">' +
+      '<div class="fl-col"><h4>Foundation</h4><ul><li>Dashboard, schedule import</li><li>Consolidated Gantt</li><li>Weighted % complete</li><li>Sequence violations</li></ul></div>' +
+      '<div class="fl-col"><h4>Cost &amp; Control</h4><ul><li>Earned value costing (CPI/EAC)</li><li>Space/time clash detection</li><li>Materials shortage forecasting</li><li>Baselines &amp; revision tracking</li></ul></div>' +
+      '<div class="fl-col"><h4>Field Intelligence</h4><ul><li>Field update log, smart validation</li><li>Accomplishment snapshots</li><li>Vex AI document import</li><li>Data confidence scoring</li></ul></div>' +
+      '<div class="fl-col"><h4>Reporting</h4><ul><li>7 S-curve types</li><li>Executive dashboard</li><li>Export center (Excel, CSV, PDF, PNG)</li><li>Report templates</li></ul></div>' +
+      '<div class="fl-col"><h4>Security</h4><ul><li>Role-based access</li><li>Audit logging</li><li>License-gated access</li></ul></div>' +
+      '<div class="fl-col"><h4>UX</h4><ul><li>Fullscreen consolidated Gantt</li><li>Focus modes, baseline overlay</li><li>Multilingual UI</li></ul></div>' +
+      '</div>'
+  },
+  "Roadmap": {
+    kicker: "WHAT'S NEXT",
+    title: "Where ArtiField is headed.",
+    intro: "Planned, not guaranteed — priorities can shift based on user feedback.",
+    body: '<div class="fl-columns">' +
+      '<div class="fl-col"><h4>Now</h4><ul><li>Portfolio-level, multi-project view</li><li>Deeper P6-style Activity ID linking</li><li>Refined clash severity tuning</li></ul></div>' +
+      '<div class="fl-col"><h4>Next</h4><ul><li>Primavera P6 / MS Project two-way sync</li><li>Automated lookahead schedules</li><li>Mobile field-update capture</li></ul></div>' +
+      '<div class="fl-col"><h4>Later</h4><ul><li>BIM-linked clash detection</li><li>Vex as an AI project copilot</li><li>Predictive delay risk scoring</li></ul></div>' +
+      '</div>'
+  },
+  "About": {
+    kicker: "COMPANY",
+    title: "Built by ArtiByte, for real jobsites.",
+    body: '<p class="fl-intro">ArtiField started from a simple problem: schedules that were true on the day they were printed, and cost forecasts that were really just guesses. Every module is built around one connected project ledger, so what you see on screen is what actually happened on site.</p><p class="fl-intro">ArtiField is built by ArtiByte, a technology company focused on practical, intelligent, connected software — and is part of a growing ecosystem alongside ArtiStock, ArtiPOS, ArtiDrive, ArtiHome, and Gold AI, the intelligence layer connecting them.</p>'
+  },
+  "Careers": {
+    kicker: "JOIN US",
+    title: "Build technology that matters.",
+    body: '<p class="fl-intro">ArtiByte, the team behind ArtiField, is always open to people who enjoy solving real problems — software developers, AI/automation developers, UI/UX designers, and construction-industry domain experts.</p><p class="fl-intro">No open roles posted right now — reach out at hello@artifield.ph with your resume, portfolio, and role of interest, and we\'ll keep you in mind.</p>'
+  },
+  "Blog": {
+    kicker: "READING",
+    title: "From the ArtiField &amp; ArtiByte blog",
+    body: '<ul class="fl-list"><li>Sample post — Why SPI and CPI should never live in separate spreadsheets</li><li>Sample post — Reading a clash &amp; sequence log in 5 minutes</li><li>Sample post — Inside Vex: how AI turns a schedule file into structured tasks</li><li>Sample post — Inside the ArtiByte ecosystem: how ArtiField, ArtiStock, and Gold AI connect</li></ul>'
+  },
+  "Contact": {
+    kicker: "GET IN TOUCH",
+    title: "Talk to the ArtiField team",
+    body: '<p class="fl-intro">Email <a href="mailto:hello@artifield.ph">hello@artifield.ph</a> or call <a href="tel:+639000000000">+63 900 000 0000</a>. Or use the fit-check tool above — it ends with a form the team follows up on directly.</p><ul class="fl-list"><li><b>Sales</b> — pricing, licensing, demos</li><li><b>Support</b> — technical assistance</li><li><b>Partnerships</b> — integrations &amp; collaborations</li></ul>'
+  },
+  "Help Center": {
+    kicker: "SUPPORT",
+    title: "Common questions",
+    body:
+      flFaq("How does clash &amp; sequence detection work?", "Overlapping trades on the same building and floor, or a successor starting before its predecessor finishes, are flagged automatically and scored High/Medium/Low by overlap days.") +
+      flFaq("Can I track multiple buildings or phases?", "Yes — the Consolidated Gantt rolls up building → trade → activity, and every engine (SPI, CPI, materials) works per building or across the whole project.") +
+      flFaq("Does it forecast cost automatically?", "Yes — earned value (CPI, EAC) recalculates from the same weighted schedule progress you're already tracking, no separate cost model to maintain.") +
+      '<div class="fl-note">Also covers: Getting Started, Account &amp; Access, Billing &amp; Licensing, Data &amp; Imports, Integrations, Security &amp; Privacy.</div>'
+  },
+  "Documentation": {
+    kicker: "DOCS",
+    title: "Getting started with ArtiField",
+    body: '<div class="fl-columns">' +
+      '<div class="fl-col"><h4>Product</h4><ul><li>Overview &amp; setup</li><li>Schedule import &amp; parsing</li><li>Clash &amp; sequence detection</li><li>EVM costing &amp; reporting</li></ul></div>' +
+      '<div class="fl-col"><h4>Admin &amp; Implementation</h4><ul><li>Project &amp; client setup</li><li>Data administration</li><li>Deployment &amp; go-live</li></ul></div>' +
+      '<div class="fl-col"><h4>AI &amp; Releases</h4><ul><li>Vex AI documentation</li><li>Responsible AI</li><li>Release notes</li></ul></div>' +
+      '</div>' +
+      '<div class="fl-note">Full documentation site coming soon.</div>'
+  },
+  "API Reference": {
+    kicker: "DEVELOPERS",
+    title: "API access",
+    body: '<ul class="fl-list"><li>Authentication — API keys &amp; tokens</li><li>Resources — Tasks, Cost Entries, Material Entries, Clashes, Reports</li><li>Webhooks — schedule, cost, and clash events</li><li>Errors, rate limits &amp; pagination</li></ul><div class="fl-note">API access available on request — contact the team for credentials.</div>'
+  },
+  "Community": {
+    kicker: "COMMUNITY",
+    title: "Connect with other ArtiField users",
+    body: '<p class="fl-intro">Community space is being set up — planned areas include General Discussion, Product Communities (ArtiField, ArtiStock, ArtiPOS, ArtiDrive, ArtiHome), Developers, AI &amp; Vex, Feature Requests, Showcase, and Events.</p><div class="fl-note">In the meantime, reach the team directly at hello@artifield.ph with feedback or questions.</div>'
+  },
+  "Privacy Policy": {
+    kicker: "LEGAL — DRAFT",
+    title: "Privacy Policy",
+    intro: "Effective Date: [Insert Date] · Last Updated: [Insert Date]",
+    body: (function(){
+      var sections = [
+        ["About ArtiByte", "ArtiByte is a software and technology company developing practical digital products and intelligent technology solutions. Our ecosystem may include ArtiField, ArtiStock, ArtiPOS, ArtiDrive, ArtiHome, Gold AI / Vex, and future ArtiByte products, applications, integrations, and services."],
+        ["Information We Collect", "We collect information necessary to provide, secure, improve, maintain, and support our Services — including name, email, phone, company, job title, billing information, account credentials, and communications — when you create an account, purchase a license, request a demo, or contact us."],
+        ["Project Data", "When you use ArtiField to manage your project, you may enter information relating to your schedule, cost, materials, suppliers, employees, and documents. Where ArtiByte acts as a service provider for a customer organization, the customer determines the purposes for which that information is processed and remains responsible for its own lawful collection of it."],
+        ["Information Collected Automatically", "When you access our websites or Services, we may automatically collect IP address, browser and device type, approximate location, pages or features accessed, session information, and security-related events — used to operate, secure, and improve our Services."],
+        ["AI and Intelligent Features (Vex)", "Vex may process information made available through ArtiField to provide extraction, summaries, and workflow assistance. AI-generated information may contain errors and should be reviewed before material business, financial, or safety decisions."],
+        ["How We Share Information", "ArtiByte does not sell personal information as a business practice. We may share information with trusted service providers, authorized administrators of your organization, when required by law, or with your specific direction."],
+        ["Data Retention &amp; Security", "We retain information only as long as reasonably necessary and take reasonable technical, organizational, and administrative measures to protect it — access controls, authentication, encryption in transit, and monitoring. No system can be guaranteed completely secure."],
+        ["Your Privacy Rights", "Depending on your location, you may have rights to access, correct, delete, restrict, or port your information, and to lodge a complaint with a relevant privacy regulator, subject to legal exceptions."],
+        ["Philippine Privacy Rights", "For individuals subject to Philippine privacy law, ArtiByte recognizes applicable rights under the Data Privacy Act of 2012 and related regulations."],
+        ["Children's Privacy", "The Services are intended for businesses, organizations, and professionals. We do not knowingly collect personal information from children where prohibited by applicable law."],
+        ["Changes to This Privacy Policy", "We may update this Privacy Policy to reflect new products, features, or legal requirements. The \"Last Updated\" date above indicates the most recent revision."],
+        ["Contact Us", "For questions relating to this Privacy Policy: Email privacy@yourdomain.com · Website https://yourdomain.com · Address [Insert Business Address]."]
+      ];
+      return '<div class="fl-steps">' + sections.map(function(s, i){
+        var num = String(i + 1).padStart(2, "0");
+        return '<div class="fl-step"><span class="fl-step-num">' + num + '</span><span class="fl-step-body"><b>' + s[0] + '</b><span>' + s[1] + '</span></span></div>';
+      }).join("") + '</div>' +
+      '<div class="fl-note">We do not sell personal information as a business practice, and design AI features to assist users while recognizing the importance of human oversight. Version 1.0 · Owner: ArtiByte. Replace all bracketed placeholders before this goes live.</div>';
+    })()
+  },
+  "Terms of Service": {
+    kicker: "LEGAL — DRAFT",
+    title: "Terms of Service",
+    intro: "Effective Date: [Insert Date] · Last Updated: [Insert Date] · Version 1.0",
+    body: (function(){
+      var sections = [
+        ["About ArtiByte", "ArtiByte develops software supporting project operations, productivity, and intelligent digital workflows. These Terms apply to ArtiByte Services — including ArtiField, ArtiStock, ArtiPOS, ArtiDrive, ArtiHome, and Gold AI / Vex — unless a specific order form provides different terms."],
+        ["Eligibility &amp; Accounts", "You must be legally capable of entering a binding agreement. You agree to provide accurate information, protect your login credentials, and are responsible for activity performed through your account."],
+        ["License to Use the Software", "Subject to these Terms and payment of applicable fees, ArtiByte grants a limited, non-exclusive, non-transferable right to access and use the Services during the applicable license period. You may not resell, reverse engineer, or use the Services to build a competing product."],
+        ["Project Data", "You may submit schedule, cost, material, and other operational information (\"Project Data\"). You retain your rights in Project Data, subject to the rights ArtiByte needs to provide, secure, and support the Services."],
+        ["Data Backups", "ArtiByte may maintain backups appropriate to the Services, but you remain responsible for maintaining your own important copies unless expressly guaranteed in writing."],
+        ["Acceptable Use", "You agree to use the Services lawfully and must not commit fraud, distribute malware, attack or compromise systems, gain unauthorized access, or abuse APIs."],
+        ["AI and Vex", "AI features assist with extraction, summarization, and recommendations. AI output can be inaccurate or incomplete and should be independently verified before consequential decisions. You remain responsible for decisions made using AI-assisted information."],
+        ["Integrations", "ArtiField may integrate with external services (Google services, spreadsheet platforms, accounting systems, and other APIs). ArtiByte does not control and is not responsible for third-party outages or data processing."],
+        ["Fees, Billing &amp; Renewals", "Pricing and licensing terms are provided through product pages, order forms, or customer agreements. Unless stated otherwise, fees are non-refundable except where required by law or expressly agreed in writing."],
+        ["Suspension &amp; Termination", "ArtiByte may suspend or terminate access where reasonably necessary to protect security, prevent abuse, or address non-payment, generally with notice and an opportunity to resolve the issue first."],
+        ["Disclaimers", "The Services are provided \"as available\" and \"as is\" unless otherwise expressly guaranteed in writing. ArtiByte does not guarantee uninterrupted service or always-accurate AI output."],
+        ["Project &amp; Operational Decisions", "ArtiField provides software tools that do not replace professional judgment. You are responsible for decisions involving schedule, cost, procurement, safety, and compliance."],
+        ["Limitation of Liability", "To the maximum extent permitted by law, ArtiByte will not be liable for indirect, incidental, or consequential damages. Where permitted, aggregate liability will not exceed the amount paid for the affected Service in the preceding 12 months."],
+        ["Governing Law", "Unless a separate written agreement provides otherwise, these Terms are governed by the laws of the Republic of the Philippines."],
+        ["Changes to These Terms", "ArtiByte may update these Terms to reflect new products, features, or legal requirements, providing appropriate notice for material changes."],
+        ["Contact ArtiByte", "Website https://yourdomain.com · General Inquiries contact@yourdomain.com · Legal legal@yourdomain.com · Support support@yourdomain.com."]
+      ];
+      return '<div class="fl-steps">' + sections.map(function(s, i){
+        var num = String(i + 1).padStart(2, "0");
+        return '<div class="fl-step"><span class="fl-step-num">' + num + '</span><span class="fl-step-body"><b>' + s[0] + '</b><span>' + s[1] + '</span></span></div>';
+      }).join("") + '</div>' +
+      '<div class="fl-note">Version 1.0 · Governing Law: Republic of the Philippines, unless otherwise agreed · Company: [Insert Registered Legal Entity Name] · Legal Contact: legal@yourdomain.com. Replace all bracketed placeholders before this goes live.</div>';
+    })()
+  },
+  "Sales & Refunds": {
+    kicker: "BILLING & REFUNDS",
+    title: "Billing, Licensing &amp; Refunds",
+    intro: "How ArtiField licenses are billed, renewed, and refunded.",
+    body: (function(){
+      var sections = [
+        ["How billing works", "Licenses are billed per project, per year (or per the term stated on your order form). An invoice is issued at the start of each billing period, covering the license tier and any add-on modules selected at signup."],
+        ["Trials &amp; demos", "A guided demo using your own schedule and cost data is available before you commit — no card required. Trial access, where offered, does not automatically convert to a paid plan without explicit confirmation."],
+        ["Upgrades &amp; downgrades", "You can move between license tiers (Solo → Project Team → Multi-Project) at any time; the change and any prorated charge take effect on your next billing cycle unless otherwise agreed."],
+        ["Renewals", "Licenses renew at the end of the term shown on your order form. We'll reach out ahead of renewal with current pricing so there are no surprises."],
+        ["Cancellations", "You may cancel at any time; cancellation takes effect at the end of the current paid period, and your data remains accessible for export until then."],
+        ["Refunds", "Fees already billed are generally non-refundable, except where required by law or expressly agreed in writing (for example, a documented service outage or a billing error on our part)."],
+        ["Disputed charges", "If something on your invoice looks wrong, contact billing@artifield.ph within 30 days and we'll review it before pursuing further collection."],
+        ["Taxes", "Unless stated otherwise, listed prices exclude applicable taxes, which are added at checkout or invoicing based on your billing address."]
+      ];
+      return '<div class="fl-steps">' + sections.map(function(s, i){
+        var num = String(i + 1).padStart(2, "0");
+        return '<div class="fl-step"><span class="fl-step-num">' + num + '</span><span class="fl-step-body"><b>' + s[0] + '</b><span>' + s[1] + '</span></span></div>';
+      }).join("") + '</div>' +
+      '<div class="fl-note">Questions about an invoice or a refund? Email billing@artifield.ph and reference your project name.</div>';
+    })()
+  },
+  "Security": {
+    kicker: "SECURITY",
+    title: "Security",
+    intro: "ArtiField is designed with role-based access, accountability, and responsible data handling in mind. Security is a shared responsibility between ArtiByte, administrators, and users.",
+    body: (function(){
+      var sections = [
+        ["Security at a glance", "Multiple layers of controls protect project information — accounts, role-based access, audit logging, transaction traceability, controlled integrations, and license-gated entry."],
+        ["User accounts", "Each user should have their own account when individual accountability is required. Keep credentials confidential and report suspected unauthorized access promptly."],
+        ["Roles &amp; permissions", "Admin has the broadest access — settings, users, and project configuration. Project Manager has broad operational access without account administration. Site/Field roles focus on day-to-day schedule and progress updates."],
+        ["Audit log", "Supported actions — imports, edits, task locks, and cost entries — are recorded so authorized users can investigate who did what, when, and to which record."],
+        ["Data confidence &amp; traceability", "Every imported record carries a confidence score and a source reference back to its file, sheet, and row, so questionable data is visible rather than silently trusted."],
+        ["Vex AI security", "Vex processes only the documents you submit for extraction, within the access boundaries of your project. AI output should still be reviewed before consequential decisions."],
+        ["License-gated access", "Access to a project's ArtiField instance requires a verified license key, with rate-limited attempts and lockout on repeated failures."],
+        ["Responsible disclosure", "Report suspected security issues to security@artifield.ph with a description, affected feature, and steps to reproduce. Never include passwords, API keys, or payment information in a report."],
+        ["Security limitations", "No platform can guarantee absolute security. ArtiByte works continuously to maintain and improve reasonable protections, but cannot guarantee the Services will never experience an incident."]
+      ];
+      return '<div class="fl-steps">' + sections.map(function(s, i){
+        var num = String(i + 1).padStart(2, "0");
+        return '<div class="fl-step"><span class="fl-step-num">' + num + '</span><span class="fl-step-body"><b>' + s[0] + '</b><span>' + s[1] + '</span></span></div>';
+      }).join("") + '</div>' +
+      '<div class="fl-note">Controlled access. Traceable operations. Responsible data handling. — ArtiField: Secure access, traceable operations, responsible technology.</div>';
+    })()
+  },
+  "Sitemap": {
+    kicker: "NAVIGATE",
+    title: "All pages",
+    body: '<ul class="fl-list"><li>Home</li><li>Fit Check tool</li><li>Features</li><li>Pricing</li><li>Integrations</li><li>Changelog</li><li>Roadmap</li><li>About</li><li>Careers</li><li>Blog</li><li>Contact</li><li>Help Center</li><li>Documentation</li><li>API Reference</li><li>Community</li><li>Privacy Policy</li><li>Terms of Service</li><li>Sales &amp; Refunds</li><li>Security</li></ul>'
+  }
+};
+const FL_ALIASES = { "Sales and Refunds": "Sales & Refunds" };
+
+const flOverlay = document.getElementById("flOverlay");
+function openFooterModal(key){
+  const panel = FOOTER_CONTENT[key];
+  if(!panel) return;
+  document.getElementById("flContent").innerHTML =
+    '<div class="fl-kicker">' + panel.kicker + '</div>' +
+    '<div class="fl-title">' + panel.title + '</div>' +
+    (panel.intro ? '<div class="fl-intro">' + panel.intro + '</div>' : '') +
+    panel.body +
+    '<button type="button" class="fl-back" id="flBack">← Back</button>';
+  document.getElementById("flBack").onclick = closeFooterModal;
+  flOverlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closeFooterModal(){
+  flOverlay.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function validateArtilinePitchForm(){
+  const nameEl = document.getElementById("apName");
+  const emailEl = document.getElementById("apEmail");
+  const companyEl = document.getElementById("apCompany");
+  const checks = [
+    { wrap: document.getElementById("apFieldName"), valid: nameEl.value.trim().length > 1 },
+    { wrap: document.getElementById("apFieldEmail"), valid: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim()) },
+    { wrap: document.getElementById("apFieldCompany"), valid: companyEl.value.trim().length > 1 }
+  ];
+  let ok = true;
+  checks.forEach(c => {
+    c.wrap.classList.toggle("invalid", !c.valid);
+    if(!c.valid) ok = false;
+  });
+  return ok;
+}
+
+function submitArtilinePitch(btnEl){
+  if(!validateArtilinePitchForm()){
+    toast("Please fill in your name, email, and business name", true);
+    return;
+  }
+  const payload = {
+    source: "ARTILINE Pitch",
+    name: document.getElementById("apName").value.trim(),
+    email: document.getElementById("apEmail").value.trim(),
+    company: document.getElementById("apCompany").value.trim(),
+    phone: document.getElementById("apPhone").value.trim(),
+    ts: new Date().toISOString()
+  };
+  const originalLabel = btnEl.textContent;
+  btnEl.disabled = true;
+  btnEl.innerHTML = '<span class="btn-spinner"></span>Sending…';
+
+  function showSuccess(){
+    document.getElementById("artilineLeadForm").style.display = "none";
+    btnEl.style.display = "none";
+    document.getElementById("artilinePitchResult").innerHTML =
+      '<div class="edge-result" style="margin-top:4px"><div class="edge-result-label">REQUEST SENT</div>' +
+      '<div class="edge-result-text">Thanks, ' + payload.name.split(" ")[0] + ' — we got it. Someone from ArtiByte will reach out to talk about building ARTILINE for ' + payload.company + '.</div></div>';
+  }
+
+  if(config.webhookUrl){
+    fetch(config.webhookUrl, {
+      method: "POST", mode: "no-cors",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify(payload)
+    }).then(() => {
+      toast("✓ Sent");
+      showSuccess();
+    }).catch(() => {
+      toast("Could not send — try again", true);
+      btnEl.disabled = false;
+      btnEl.textContent = originalLabel;
+    });
+  } else {
+    console.log("ARTILINE pitch lead (local test mode):", payload);
+    toast("Local test — captured lead");
+    showSuccess();
+  }
+}
+
+function openArtilinePitch(){
+  document.getElementById("flContent").innerHTML =
+    '<div class="fl-kicker">' + ARTILINE_PITCH.kicker + '</div>' +
+    '<div class="fl-title">' + ARTILINE_PITCH.title + '</div>' +
+    '<div class="fl-intro">' + ARTILINE_PITCH.intro + '</div>' +
+    ARTILINE_PITCH.body +
+    '<button type="button" class="fl-back" id="flBack">← Back</button>';
+  document.getElementById("flBack").onclick = closeFooterModal;
+  document.getElementById("artilinePitchCta").onclick = (e) => submitArtilinePitch(e.currentTarget);
+  flOverlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+document.getElementById("flClose").onclick = closeFooterModal;
+flOverlay.onclick = (e) => { if(e.target === flOverlay) closeFooterModal(); };
+
+document.querySelectorAll(".footer-link, .footer-link-inline").forEach(btn => {
+  const label = btn.textContent.trim();
+  const key = FL_ALIASES[label] || label;
+  if(FOOTER_CONTENT[key]){
+    btn.addEventListener("click", () => openFooterModal(key));
+  }
+});
+
+function setActionButtonsBusy(busy, activeBtn){
+  const wrap = document.getElementById("actionButtons");
+  if(!wrap) return;
+  [...wrap.querySelectorAll("button")].forEach(b => {
+    b.disabled = busy;
+    if(b === activeBtn) b.innerHTML = busy ? '<span class="btn-spinner"></span>Sending…' : b.dataset.label;
+  });
+}
+function showActionConfirmation(){
+  const box = document.getElementById("actionResult");
+  if(!box) return;
+  box.innerHTML = '<small>CONFIRMED</small><div class="headline">Thanks — we\'ll be in touch.</div><div class="body">Your fit summary was saved. Someone from the ArtiField team will reach out to set up your demo.</div>' +
+    '<button type="button" class="btn-secondary result-back-btn" id="confirmedBack">← Back</button>';
+  document.getElementById("confirmedBack").onclick = () => { if(index > 0){ index--; render(); } };
+}
+
+function validateLeadForm(){
+  const nameEl = document.getElementById("leadName");
+  const emailEl = document.getElementById("leadEmail");
+  const companyEl = document.getElementById("leadCompany");
+  const checks = [
+    { wrap: document.getElementById("fieldName"), valid: nameEl.value.trim().length > 1 },
+    { wrap: document.getElementById("fieldEmail"), valid: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim()) },
+    { wrap: document.getElementById("fieldCompany"), valid: companyEl.value.trim().length > 1 }
+  ];
+  let ok = true;
+  checks.forEach(c => {
+    c.wrap.classList.toggle("invalid", !c.valid);
+    if(!c.valid) ok = false;
+  });
+  if(ok){
+    formData.leadName = nameEl.value.trim();
+    formData.leadEmail = emailEl.value.trim();
+    formData.leadCompany = companyEl.value.trim();
+    formData.leadPhone = document.getElementById("leadPhone").value.trim();
+  }
+  return ok;
+}
+
+function submitLead(actionType, btnEl){
+  if(!validateLeadForm()){
+    toast("Please fill in your name, email, and company", true);
+    return;
+  }
+  formData.action = actionType;
+  if(btnEl) btnEl.dataset.label = btnEl.textContent;
+  setActionButtonsBusy(true, btnEl);
+  toast("Sending…");
+
+  if(config.webhookUrl){
+    fetch(config.webhookUrl, {
+      method: "POST", mode: "no-cors",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify(formData)
+    }).then(() => {
+      toast("✓ Sent");
+      showActionConfirmation();
+    }).catch(() => {
+      toast("Could not send — try again", true);
+      setActionButtonsBusy(false, btnEl);
+    });
+  } else {
+    console.log("Lead captured (local test mode):", formData);
+    toast("Local test — captured: " + actionType);
+    showActionConfirmation();
+  }
+}
+
+/* === VEX AI GREETING ENGINE === */
+const VEX = {
+  storageKey: "vexGreetHistory",
+  cooldownMs: 1000 * 60 * 30,
+
+  greetings: {
+    morningEarly: [
+      "Good morning — you're up early.\nI like that. Let's get your project sorted before the day gets busy.",
+      "Hey, morning.\nQuiet ones like this are my favorite. What's on your mind?",
+      "Morning.\nFresh start, clean slate. Where do you want to begin?"
+    ],
+    morning: [
+      "Good morning.\nI'm VEX — happy to walk you through the schedule and cost picture, if you'd like.",
+      "Morning! Hope it's off to a good start.\nTake a look around, I'm here if anything's unclear.",
+      "Hey there.\nGot a few minutes? I can show you exactly where to start."
+    ],
+    afternoon: [
+      "Good afternoon.\nBusy day on site? Let's make this part quick and easy.",
+      "Hey — afternoon.\nLooking for something specific, or just browsing for now?",
+      "Good afternoon.\nNo rush on my end, take your time looking around."
+    ],
+    evening: [
+      "Good evening.\nStill closing out the day's reports? Respect. Let's see how I can help.",
+      "Evening — glad you swung by.\nWhatever brought you here, I've got you.",
+      "Hey, good evening.\nLet's make this last stop worth it."
+    ],
+    night: [
+      "Oh, hey — still up?\nI'll keep this simple, promise.",
+      "Late night visit, huh.\nNo pressure at all, look around whenever you're ready.",
+      "Hi there.\nBurning the midnight oil over a schedule? I don't mind the company."
+    ],
+    weekendMorning: [
+      "Happy weekend!\nJust taking a peek around, or looking for something in particular?",
+      "Hey, happy Saturday.\nNo agenda needed today — explore at your own pace."
+    ],
+    weekend: [
+      "Happy weekend.\nHonestly didn't expect visitors today — glad you're here.",
+      "Oh, a weekend visit.\nI respect the dedication. Let me know if you need anything."
+    ],
+    holiday: {
+      newYear: ["Happy New Year!\nWelcome back — let's make this one count, together."],
+      christmas: ["Merry Christmas.\nHope today's treating you well. I'm here if you need me."],
+      valentines: ["Happy Valentine's Day.\nSending good vibes your way today."]
+    },
+    firstVisit: [
+      "Hi, I'm VEX.\nFirst time here? Let me walk you through it — just a couple minutes.",
+      "Hey there, welcome.\nI'm VEX. Ask me anything, or just click around — either works."
+    ],
+    returning: [
+      "Welcome back.\nGood to see you again — pick up right where you left off?",
+      "Oh hey, you're back!\nMissed you. Let's continue."
+    ]
+  },
+
+  disclaimer: "Real talk — I'm VEX, still in preview mode rn.\nNext upgrade, we'll actually be able to talk it out, no cap — you tell me what's happening on site, I take care of the paperwork. No brainrot, just straight up help. Soon.",
+
+  getHistory(){
+    try{
+      const raw = localStorage.getItem(this.storageKey);
+      return raw ? JSON.parse(raw) : { lastGreeting:"", recent:[], lastShownAt:0, visits:0 };
+    }catch(e){
+      return { lastGreeting:"", recent:[], lastShownAt:0, visits:0 };
+    }
+  },
+  saveHistory(h){
+    try{ localStorage.setItem(this.storageKey, JSON.stringify(h)); }catch(e){}
+  },
+
+  getHoliday(date){
+    const m = date.getMonth() + 1, d = date.getDate();
+    if(m === 1 && d === 1) return "newYear";
+    if(m === 12 && (d === 24 || d === 25)) return "christmas";
+    if(m === 2 && d === 14) return "valentines";
+    return null;
+  },
+
+  pickFrom(list, history){
+    const options = list.filter(g => !history.recent.includes(g));
+    const pool = options.length ? options : list;
+    return pool[Math.floor(Math.random() * pool.length)];
+  },
+
+  buildGreeting(){
+    const history = this.getHistory();
+    const now = Date.now();
+    const date = new Date();
+    const hour = date.getHours();
+    const day = date.getDay();
+    const isWeekend = (day === 0 || day === 6);
+    const holidayKey = this.getHoliday(date);
+    const isFirstVisit = history.visits === 0;
+
+    let pool;
+    if(holidayKey && this.greetings.holiday[holidayKey]){
+      pool = this.greetings.holiday[holidayKey];
+    } else if(isFirstVisit){
+      pool = this.greetings.firstVisit;
+    } else if(isWeekend && hour >= 5 && hour < 12){
+      pool = this.greetings.weekendMorning;
+    } else if(isWeekend){
+      pool = this.greetings.weekend;
+    } else if(hour >= 5 && hour < 8){
+      pool = this.greetings.morningEarly;
+    } else if(hour >= 8 && hour < 12){
+      pool = this.greetings.morning;
+    } else if(hour >= 12 && hour < 17){
+      pool = this.greetings.afternoon;
+    } else if(hour >= 17 && hour < 21){
+      pool = this.greetings.evening;
+    } else {
+      pool = this.greetings.night;
+    }
+
+    const text = this.pickFrom(pool, history);
+
+    history.recent.push(text);
+    if(history.recent.length > 5) history.recent.shift();
+    history.lastGreeting = text;
+    history.lastShownAt = now;
+    history.visits = (history.visits || 0) + 1;
+    this.saveHistory(history);
+
+    return text;
+  },
+
+  makeTypingIndicator(){
+    const el = document.createElement("div");
+    el.className = "vex-typing";
+    el.innerHTML = '<span class="vex-typing-dot"></span><span class="vex-typing-dot"></span><span class="vex-typing-dot"></span>';
+    return el;
+  },
+
+  typeText(el, text, charsPerSecond, onDone){
+    const textEl = document.createElement("span");
+    const caret = document.createElement("span");
+    caret.className = "vex-caret";
+    el.appendChild(textEl);
+    el.appendChild(caret);
+
+    let start = null;
+    let shown = 0;
+    const total = text.length;
+
+    function step(ts){
+      if(start === null) start = ts;
+      const elapsed = (ts - start) / 1000;
+      const targetChars = Math.min(total, Math.floor(elapsed * charsPerSecond));
+      if(targetChars > shown){
+        shown = targetChars;
+        textEl.textContent = text.slice(0, shown);
+      }
+      if(shown < total){
+        requestAnimationFrame(step);
+      } else {
+        caret.remove();
+        if(onDone) onDone();
+      }
+    }
+    requestAnimationFrame(step);
+  },
+
+  showBubbleWithDelay(wrap, className, tagHtml, text, humanDelayMs, charsPerSecond){
+    return new Promise((resolve) => {
+      const typing = this.makeTypingIndicator();
+      wrap.appendChild(typing);
+      requestAnimationFrame(() => typing.classList.add("show"));
+
+      setTimeout(() => {
+        typing.classList.remove("show");
+        typing.classList.add("hide");
+        setTimeout(() => {
+          typing.remove();
+          const bubble = document.createElement("div");
+          bubble.className = "vex-bubble" + (className ? " " + className : "");
+          if(tagHtml) bubble.innerHTML = tagHtml;
+          const textWrap = document.createElement("div");
+          textWrap.className = "vex-bubble-text";
+          bubble.appendChild(textWrap);
+          wrap.appendChild(bubble);
+          requestAnimationFrame(() => bubble.classList.add("show"));
+
+          this.typeText(textWrap, text, charsPerSecond, () => resolve(bubble));
+        }, 250);
+      }, humanDelayMs);
+    });
+  },
+
+  async render(){
+    const fullText = this.buildGreeting();
+    if(!fullText){ document.body.classList.add("app-ready"); window.dispatchEvent(new Event("appReady")); return; }
+    const overlay = document.getElementById("vexOverlay");
+    const wrap = document.getElementById("vexWrap");
+    if(!wrap || !overlay) return;
+
+    const navCenter = document.getElementById("navCenter");
+    let navLabel = document.getElementById("vexNavLabel");
+    if(navCenter && !navLabel){
+      navCenter.innerHTML = '<span class="vex-nav-label" id="vexNavLabel">VEX AI</span>';
+      navLabel = document.getElementById("vexNavLabel");
+    }
+
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+
+    const lines = fullText.split("\n");
+    const mainLine = lines[0];
+    const subLine = lines.slice(1).join(" ");
+
+    const tagHtml = '<div class="vex-bubble-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg><span>VEX</span></div>';
+
+    const firstDelay = 400 + Math.random() * 400;
+    await this.showBubbleWithDelay(wrap, "", tagHtml, mainLine, firstDelay, 38);
+
+    if(subLine){
+      const secondDelay = 300 + Math.random() * 350;
+      await this.showBubbleWithDelay(wrap, "vex-bubble-sub", "", subLine, secondDelay, 42);
+    }
+
+    const disclaimerLines = this.disclaimer.split("\n");
+    const discMain = disclaimerLines[0];
+    const discSub = disclaimerLines.slice(1).join(" ");
+
+    const thirdDelay = 450 + Math.random() * 350;
+    await this.showBubbleWithDelay(wrap, "", "", discMain, thirdDelay, 38);
+
+    if(discSub){
+      const fourthDelay = 300 + Math.random() * 300;
+      await this.showBubbleWithDelay(wrap, "vex-bubble-sub", "", discSub, fourthDelay, 40);
+    }
+
+    const holdMs = 2200;
+    setTimeout(() => {
+      if(navLabel){
+        const wrapRect = wrap.getBoundingClientRect();
+        const navRect = navLabel.getBoundingClientRect();
+        const tx = (navRect.left + navRect.width / 2) - (wrapRect.left + wrapRect.width / 2);
+        const ty = (navRect.top + navRect.height / 2) - (wrapRect.top + wrapRect.height / 2);
+        wrap.style.setProperty("--vex-tx", tx + "px");
+        wrap.style.setProperty("--vex-ty", ty + "px");
+      }
+      wrap.classList.add("vex-genie");
+
+      setTimeout(() => {
+        overlay.classList.remove("open");
+        document.body.style.overflow = "";
+        wrap.classList.remove("vex-genie");
+        wrap.style.removeProperty("--vex-tx");
+        wrap.style.removeProperty("--vex-ty");
+        wrap.innerHTML = "";
+        document.body.classList.add("app-ready");
+        window.dispatchEvent(new Event("appReady"));
+        if(navLabel){
+          requestAnimationFrame(() => navLabel.classList.add("show"));
+        }
+      }, 620);
+    }, holdMs);
+  }
+};
+VEX.render();
+document.getElementById("vexNavLabel").addEventListener("click", () => {
+  toast("Vex AI — this is the same assistant that structures your field data inside ArtiField.");
+});
+
+function renderArtilineDev(){
+  const d = config.developer;
+  const wrap = document.getElementById("artilineDevWrap");
+  if(!wrap || !d || !d.enabled){ if(wrap) wrap.innerHTML = ""; return; }
+  const inner = (d.labelIcon || "") + '<span>' + d.label + '</span>';
+  wrap.innerHTML = '<div class="artiline-strip"><a href="#" id="artilineDevLink">' + inner + '</a></div>';
+  document.getElementById("artilineDevLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    openArtilineDeck();
+  });
+}
+renderArtilineDev();
+
+function applySocialLinks(){
+  const s = config.social || {};
+  const links = {
+    socialFacebook: s.facebook,
+    socialInstagram: s.instagram,
+    socialLinkedin: s.linkedin,
+    socialEmail: s.email ? "mailto:" + s.email : null,
+    socialSms: s.smsNumber ? "sms:+63" + s.smsNumber.replace(/^0+/, "") : null
+  };
+  Object.keys(links).forEach(id => {
+    const el = document.getElementById(id);
+    if(el && links[id]) el.href = links[id];
+  });
+}
+if(typeof google !== "undefined" && google.script && google.script.run){
+  google.script.run
+    .withSuccessHandler((links) => {
+      if(links){
+        Object.keys(links).forEach(k => { if(links[k]) config.social[k] = links[k]; });
+      }
+      applySocialLinks();
+    })
+    .withFailureHandler(applySocialLinks)
+    .getSocialLinks();
+} else {
+  applySocialLinks();
+}
+
+/* === START: ARTILINE DECK ENGINE === */
+function adHaptic(type){
+  if(!navigator.vibrate) return;
+  try{
+    if(type === "light") navigator.vibrate(8);
+    else if(type === "medium") navigator.vibrate(18);
+    else if(type === "success") navigator.vibrate([10,6,20]);
+  }catch(e){}
+}
+
+const AD_HEADINGS = [
+  "Your website shouldn't just be seen.",
+  "Six stages. One guided experience.",
+  "Rules decide. AI explains.",
+  "A note from the founder.",
+  "Let's build yours."
+];
+const AD_TOTAL = AD_HEADINGS.length;
+let adCurrent = 0;
+let adBuilt = [false,false,false,false,false];
+let adOpen = false;
+
+function adBuildChars(el, text){
+  el.classList.remove("shown");
+  el.innerHTML = "";
+  let i = 0;
+  text.split(" ").forEach((word, wi, arr) => {
+    const wordWrap = document.createElement("span");
+    wordWrap.style.display = "inline-block";
+    word.split("").forEach(ch => {
+      const s = document.createElement("span");
+      s.className = "adc";
+      s.style.transitionDelay = (i*18) + "ms";
+      s.textContent = ch;
+      wordWrap.appendChild(s);
+      i++;
+    });
+    el.appendChild(wordWrap);
+    if(wi < arr.length - 1){
+      const space = document.createElement("span");
+      space.className = "adc";
+      space.style.transitionDelay = (i*18) + "ms";
+      space.textContent = "\u00A0";
+      el.appendChild(space);
+      i++;
+    }
+  });
+  void el.offsetWidth;
+  requestAnimationFrame(() => el.classList.add("shown"));
+}
+
+let adHintTimer = null;
+function adShowHint(){
+  clearTimeout(adHintTimer);
+  const hint = document.getElementById("adHint");
+  if(!hint) return;
+  hint.classList.remove("show");
+  void hint.offsetWidth;
+  setTimeout(() => hint.classList.add("show"), 500);
+  adHintTimer = setTimeout(() => hint.classList.remove("show"), 3200);
+}
+
+function adGoTo(i, opts){
+  opts = opts || {};
+  i = Math.max(0, Math.min(AD_TOTAL - 1, i));
+  const changed = i !== adCurrent;
+  adCurrent = i;
+  const track = document.getElementById("adTrack");
+  const h = document.getElementById("adStage").clientHeight;
+  track.style.transform = "translateY(-" + (i*h) + "px)";
+  document.getElementById("adTopFill").style.width = (((i+1)/AD_TOTAL)*100) + "%";
+  document.querySelectorAll("#adTrack .ad-slide").forEach((s,idx) => s.classList.toggle("ad-active", idx === i));
+  document.querySelectorAll("#adDots .ad-dot").forEach((d,idx) => d.classList.toggle("active", idx === i));
+  if(!adBuilt[i]){
+    adBuilt[i] = true;
+    adBuildChars(document.getElementById("adH" + i), AD_HEADINGS[i]);
+  }
+  document.getElementById("adNext").style.display = (i === AD_TOTAL - 1) ? "none" : "flex";
+  if(!opts.silent) adHaptic(changed ? "medium" : "light");
+  if(i < AD_TOTAL - 1) adShowHint();
+  else clearTimeout(adHintTimer);
+}
+function adNext(){ adGoTo(adCurrent + 1); }
+function adPrev(){ adGoTo(adCurrent - 1); }
+
+function openArtilineDeck(){
+  const overlay = document.getElementById("adOverlay");
+  adBuilt = [false,false,false,false,false];
+  adCurrent = 0;
+  document.getElementById("adForm").style.display = "";
+  document.getElementById("adSuccess").style.display = "none";
+  document.getElementById("adSuccess").classList.remove("show");
+  ["adName","adEmail","adCompany","adPhone"].forEach(id => { const el = document.getElementById(id); if(el) el.value = ""; });
+  const dots = document.getElementById("adDots");
+  dots.innerHTML = "";
+  for(let i=0;i<AD_TOTAL;i++){
+    const d = document.createElement("div");
+    d.className = "ad-dot";
+    d.onclick = () => { adHaptic("light"); adGoTo(i); };
+    dots.appendChild(d);
+  }
+  overlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+  adOpen = true;
+  adHaptic("medium");
+  requestAnimationFrame(() => adGoTo(0, {silent:true}));
+}
+function closeArtilineDeck(){
+  adHaptic("light");
+  clearTimeout(adHintTimer);
+  document.getElementById("adOverlay").classList.remove("open");
+  document.body.style.overflow = "";
+  adOpen = false;
+}
+document.getElementById("adClose").onclick = closeArtilineDeck;
+document.getElementById("adNext").onclick = adNext;
+
+let adWheelLock = false;
+document.getElementById("adStage").addEventListener("wheel", (e) => {
+  if(!adOpen) return;
+  e.preventDefault();
+  if(adWheelLock || Math.abs(e.deltaY) < 12) return;
+  adWheelLock = true;
+  if(e.deltaY > 0) adNext(); else adPrev();
+  setTimeout(() => adWheelLock = false, 700);
+}, {passive:false});
+
+let adTouchStartY = 0, adTouchLock = false;
+document.getElementById("adStage").addEventListener("touchstart", (e) => { adTouchStartY = e.touches[0].clientY; }, {passive:true});
+document.getElementById("adStage").addEventListener("touchend", (e) => {
+  if(!adOpen || adTouchLock) return;
+  const dy = adTouchStartY - e.changedTouches[0].clientY;
+  if(Math.abs(dy) < 46) return;
+  adTouchLock = true;
+  if(dy > 0) adNext(); else adPrev();
+  setTimeout(() => adTouchLock = false, 700);
+}, {passive:true});
+
+document.addEventListener("keydown", (e) => {
+  if(!adOpen) return;
+  if(["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) return;
+  if(e.key === "ArrowDown" || e.key === "PageDown"){ e.preventDefault(); adNext(); }
+  else if(e.key === "ArrowUp" || e.key === "PageUp"){ e.preventDefault(); adPrev(); }
+  else if(e.key === "Escape"){ closeArtilineDeck(); }
+});
+window.addEventListener("resize", () => { if(adOpen) adGoTo(adCurrent); });
+
+function adValidate(){
+  const checks = [
+    { wrap: document.getElementById("adFName"), valid: document.getElementById("adName").value.trim().length > 1 },
+    { wrap: document.getElementById("adFEmail"), valid: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById("adEmail").value.trim()) },
+    { wrap: document.getElementById("adFCompany"), valid: document.getElementById("adCompany").value.trim().length > 1 }
+  ];
+  let ok = true;
+  checks.forEach(c => { c.wrap.classList.toggle("invalid", !c.valid); if(!c.valid) ok = false; });
+  return ok;
+}
+function submitArtilineDeck(btn){
+  if(!adValidate()){
+    toast("Please fill in your name, email, and project name", true);
+    return;
+  }
+  const payload = {
+    source: "ARTILINE Deck",
+    name: document.getElementById("adName").value.trim(),
+    email: document.getElementById("adEmail").value.trim(),
+    company: document.getElementById("adCompany").value.trim(),
+    phone: document.getElementById("adPhone").value.trim(),
+    ts: new Date().toISOString()
+  };
+  btn.disabled = true;
+  btn.innerHTML = '<span class="ad-spinner"></span>Sending…';
+
+  function done(){
+    document.getElementById("adForm").style.display = "none";
+    document.getElementById("adSuccessText").textContent =
+      "Someone from ArtiByte will reach out to talk about building ARTILINE for " + payload.company + ".";
+    const successEl = document.getElementById("adSuccess");
+    successEl.style.display = "block";
+    void successEl.offsetWidth;
+    requestAnimationFrame(() => successEl.classList.add("show"));
+    adHaptic("success");
+    clearTimeout(adHintTimer);
+    document.getElementById("adHint").classList.remove("show");
+  }
+  if(config.webhookUrl){
+    fetch(config.webhookUrl, {
+      method: "POST", mode: "no-cors",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify(payload)
+    }).then(() => { toast("✓ Sent"); done(); })
+      .catch(() => { toast("Could not send — try again", true); btn.disabled = false; btn.textContent = "Send & get started →"; });
+  } else {
+    console.log("ARTILINE deck lead (local test mode):", payload);
+    toast("Local test — captured lead");
+    done();
+  }
+}
+/* === END: ARTILINE DECK ENGINE === */
+
+/* === START: ARTIWHEEL CONFIG + LOGIC (54-SECTION / 7-TIER) === */
+const artiwheelConfig = {
+  enabled: false, // set true to turn on the whole overlay
+  tiers: [
+    { key:"A", label:"10% Discount", symbol:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5 5 19"/><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>', color:"#2e3430", count:24 },
+    { key:"B", label:"₱50 Voucher",  symbol:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M7 4h6a3.5 3.5 0 0 1 0 7H7M5 9h6M5 12.5h4"/></svg>', color:"#3a4a55", count:15 },
+    { key:"C", label:"₱100 Voucher", symbol:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V8Z"/><path d="M13 7v10" stroke-dasharray="1.5 2"/></svg>', color:"#4a3a55", count:7  },
+    { key:"D", label:"₱500 Voucher", symbol:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M7 6v12M17 6v12" opacity=".5"/></svg>', color:"#6a4a2a", count:4  },
+    { key:"E", label:"Free Consultation", symbol:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9.5" width="17" height="11" rx="1.5"/><path d="M3.5 9.5h17M12 9.5v11M12 9.5c-2-3-4.5-4-6-2.5C4.5 8.5 6 9.5 12 9.5Zm0 0c2-3 4.5-4 6-2.5 1.5 1.5 0 2.5-6 2.5Z"/></svg>', color:"#7a2f2f", count:2  },
+    { key:"F", label:"Bonus Spin",   symbol:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.7-5.7L20 8"/><path d="M20 4v4h-4"/><path d="M20 12a8 8 0 0 1-13.7 5.7L4 16"/><path d="M4 20v-4h4"/></svg>', color:"#2a5a5a", count:1  },
+    { key:"G", label:"Grand Prize",  symbol:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7L12 2Z"/></svg>', color:"#8a6a1a", count:1  }
+  ]
+};
+
+(function(){
+  if(!artiwheelConfig.enabled) return;
+
+  const overlay = document.getElementById("awOverlay");
+  const wheel = document.getElementById("awWheel");
+  const spinBtn = document.getElementById("awSpinBtn");
+  const step1 = document.getElementById("awStep1");
+  const step2 = document.getElementById("awStep2");
+  const step3 = document.getElementById("awStep3");
+  const prizeText = document.getElementById("awPrizeText");
+  const claimBtn = document.getElementById("awClaimBtn");
+  let currentPrize = null;
+  let rotation = 0;
+
+  const TOTAL_SLOTS = artiwheelConfig.tiers.reduce((s,t) => s + t.count, 0);
+
+  function buildWheelOrder(tiers, total){
+    const order = new Array(total).fill(null);
+    tiers.forEach((t, ti) => {
+      for(let k = 0; k < t.count; k++){
+        let pos = Math.round((k + 0.5) / t.count * total) % total;
+        while(order[pos] !== null) pos = (pos + 1) % total;
+        order[pos] = ti;
+      }
+    });
+    return order;
+  }
+
+  const slotOrder = buildWheelOrder(artiwheelConfig.tiers, TOTAL_SLOTS);
+  const segAngles = slotOrder.map((tierIndex, i) => {
+    const t = artiwheelConfig.tiers[tierIndex];
+    const start = i / TOTAL_SLOTS * 360;
+    const end = (i + 1) / TOTAL_SLOTS * 360;
+    return { label: t.label, symbol: t.symbol, color: t.color, start, end };
+  });
+
+  wheel.style.background = "conic-gradient(" + segAngles.map(s => s.color + " " + s.start + "deg " + s.end + "deg").join(",") + ")";
+
+  spinBtn.addEventListener("click", () => {
+    spinBtn.disabled = true;
+    const slot = Math.floor(Math.random() * TOTAL_SLOTS);
+    currentPrize = segAngles[slot];
+    const mid = (currentPrize.start + currentPrize.end) / 2;
+
+    const totalDuration = 8 + Math.random() * 2;
+    const recoilDuration = 1.7;
+    const mainDuration = totalDuration - recoilDuration;
+
+    const fullTurns = 6 + Math.floor(Math.random() * 3);
+    const overshootDeg = 1.5 + Math.random() * 0.5;
+
+    const targetRotation = rotation + fullTurns * 360 + (360 - mid);
+    const overshootRotation = targetRotation + overshootDeg;
+
+    wheel.style.transition = "transform " + mainDuration.toFixed(2) + "s cubic-bezier(0.15,0.9,0.2,1.02)";
+    wheel.style.transform = "rotate(" + overshootRotation + "deg)";
+
+    setTimeout(() => {
+      wheel.style.transition = "transform " + recoilDuration.toFixed(2) + "s cubic-bezier(0.34,1.15,0.64,1)";
+      wheel.style.transform = "rotate(" + targetRotation + "deg)";
+    }, mainDuration * 1000);
+
+    rotation = targetRotation;
+
+    setTimeout(() => {
+      step1.classList.remove("show");
+      step2.classList.add("show");
+      prizeText.textContent = currentPrize.symbol + " " + currentPrize.label;
+      spinBtn.disabled = false;
+    }, totalDuration * 1000 + 150);
+  });
+
+  claimBtn.addEventListener("click", () => {
+    const name = document.getElementById("awName").value.trim();
+    const contact = document.getElementById("awContact").value.trim();
+    if(name.length < 2 || contact.length < 5){
+      toast("Please enter your name and email or number", true);
+      return;
+    }
+    const payload = { source: "ArtiWheel", prize: currentPrize.label, name, contact, ts: new Date().toISOString() };
+    claimBtn.disabled = true;
+    claimBtn.textContent = "Sending…";
+    if(config.webhookUrl){
+      fetch(config.webhookUrl, {
+        method: "POST", mode: "no-cors",
+        headers: {"Content-Type": "text/plain;charset=utf-8"},
+        body: JSON.stringify(payload)
+      }).then(() => {
+        step2.classList.remove("show");
+        step3.classList.add("show");
+      }).catch(() => {
+        toast("Could not send — try again", true);
+        claimBtn.disabled = false;
+        claimBtn.textContent = "Claim Prize";
+      });
+    } else {
+      console.log("ArtiWheel claim (local test mode):", payload);
+      step2.classList.remove("show");
+      step3.classList.add("show");
+    }
+  });
+
+  function openArtiwheel(){
+    overlay.classList.add("open");
+    document.body.classList.add("aw-open");
+  }
+  function closeArtiwheel(){
+    overlay.classList.remove("open");
+    document.body.classList.remove("aw-open");
+  }
+  document.getElementById("awClose").addEventListener("click", closeArtiwheel);
+  overlay.addEventListener("click", (e) => { if(e.target === overlay) closeArtiwheel(); });
+
+  window.addEventListener("load", () => setTimeout(openArtiwheel, 3000));
+})();
+/* === END: ARTIWHEEL CONFIG + LOGIC (54-SECTION / 7-TIER) === */
+
+/* === OPEN APP HINT PILL TIMING === */
+(function(){
+  const hint = document.getElementById("oaHint");
+  const openAppBtn = document.getElementById("openApp");
+  if(!hint || !openAppBtn) return;
+
+  function dismissHint(){
+    if(!hint.classList.contains("show")) return;
+    hint.classList.remove("show");
+    hint.classList.add("hide");
+    setTimeout(() => { hint.style.display = "none"; }, 450);
+  }
+
+  window.addEventListener("dxNoticeClosed", () => {
+    setTimeout(() => {
+      hint.classList.add("show");
+      setTimeout(dismissHint, 4000);
+    }, 1200);
+  }, { once: true });
+
+  openAppBtn.addEventListener("click", dismissHint);
+})();
+
+/* === DESKTOP-ONLY NOTICE TIMING === */
+(function(){
+  const overlay = document.getElementById("dxOverlay");
+  const btn = document.getElementById("dxContinue");
+  if(!overlay || !btn) return;
+  const key = "artifieldDesktopNoticeSeen";
+  const readTimeMs = 6000; // human reading phase before auto-close
+  let seen = false;
+  try{ seen = sessionStorage.getItem(key) === "1"; }catch(e){}
+
+  let autoCloseTimer = null;
+  let closed = false;
+
+  function closeDx(){
+    if(closed) return;
+    closed = true;
+    clearTimeout(autoCloseTimer);
+    overlay.classList.remove("open");
+    document.body.style.overflow = "";
+    try{ sessionStorage.setItem(key, "1"); }catch(e){}
+    window.dispatchEvent(new Event("dxNoticeClosed"));
+  }
+
+  function startDxNotice(){
+    if(!seen){
+      setTimeout(() => {
+        overlay.classList.add("open");
+        document.body.style.overflow = "hidden";
+        autoCloseTimer = setTimeout(closeDx, readTimeMs);
+      }, 300);
+    } else {
+      window.dispatchEvent(new Event("dxNoticeClosed"));
+    }
+  }
+
+  window.addEventListener("appReady", startDxNotice, { once:true });
+
+  btn.addEventListener("click", closeDx);
+})();
+
+render();
+</script>
+</body>
+</html>
